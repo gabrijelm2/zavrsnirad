@@ -1,53 +1,154 @@
 /*
   main.c
-
-  Kompajliranje:
-    GCC:  gcc -std=c11 -Wall -Wextra -O2 -o skladiste main.c utils.c category.c product.c supplier.c fileio.c menu.c
-    MSVC: cl /W3 /Ox main.c utils.c category.c product.c supplier.c fileio.c menu.c
+  Glavna ulazna tocka programa
 */
 
-
-#define _CRT_SECURE_NO_WARNINGS
 #include "header.h"
 
+
+// ==========================================
+// main funkcija
+// Program pocinje izvrsavanje ovdje
+// ==========================================
+
 int main(void) {
+
+    // Inicijalizacija utility sustava
     init_utils();
 
+
+    // Naziv glavne binarne datoteke
     const char* DATA_FILE = "data.bin";
 
-    ProductArray  products;
+
+    // Kreiranje struktura za proizvode
+    // i dobavljace
+    ProductArray products;
     SupplierArray suppliers;
+
+
+    // Inicijalizacija nizova
     product_init(&products);
     supplier_init(&suppliers);
 
+
+    // Provjera postoji li data.bin
     if (file_exists(DATA_FILE)) {
-        printf("Pronasao sam datoteku '%s' s prethodnim podacima.\n", DATA_FILE);
-        int choice = read_int("Zelis li ucitati postojece podatke? (1 = DA, 0 = NE): ");
+
+        printf(
+            "Pronasao sam datoteku '%s' "
+            "s prethodnim podacima.\n",
+
+            DATA_FILE
+        );
+
+        // Pitanje korisniku
+        int choice =
+            read_int(
+                "Zelis li ucitati postojece "
+                "podatke? "
+                "(1 = DA, 0 = NE): "
+            );
+
+        // Ako korisnik zeli ucitati podatke
         if (choice == 1) {
-            if (fileio_load_all(DATA_FILE, &products, &suppliers) != 0)
-                fprintf(stderr, "Greska pri ucitavanju iz %s. Pokrece se prazno skladiste.\n", DATA_FILE);
+
+            // Ucitavanje iz datoteke
+            if (fileio_load_all(
+                    DATA_FILE,
+                    &products,
+                    &suppliers
+                ) != 0)
+
+                // Greska pri ucitavanju
+                fprintf(
+                    stderr,
+                    "Greska pri ucitavanju "
+                    "iz %s. "
+                    "Pokrece se prazno skladiste.\n",
+
+                    DATA_FILE
+                );
+
+            // Ako je verbose mod ukljucen
             else if (globalConfig.verbose)
-                printf("Podaci uspjesno ucitani iz %s\n", DATA_FILE);
+
+                printf(
+                    "Podaci uspjesno ucitani "
+                    "iz %s\n",
+
+                    DATA_FILE
+                );
         }
         else {
-            if (globalConfig.verbose) printf("Pocetak s praznim skladistem.\n");
+
+            // Korisnik ne zeli ucitati podatke
+            if (globalConfig.verbose)
+
+                printf(
+                    "Pocetak s praznim "
+                    "skladistem.\n"
+                );
         }
     }
     else {
-        if (globalConfig.verbose) printf("Nema postojece datoteke. Pocetak s praznim skladistem.\n");
+
+        // Datoteka ne postoji
+        if (globalConfig.verbose)
+
+            printf(
+                "Nema postojece datoteke. "
+                "Pocetak s praznim "
+                "skladistem.\n"
+            );
     }
 
-    main_menu(&products, &suppliers, DATA_FILE);
 
-    if (fileio_save_all(DATA_FILE, &products, &suppliers) == 0) {
-        if (globalConfig.verbose) printf("Podaci spremljeni prije izlaza.\n");
+    // Pokretanje glavnog izbornika
+    main_menu(
+        &products,
+        &suppliers,
+        DATA_FILE
+    );
+
+
+    // Automatsko spremanje prije izlaza
+    if (fileio_save_all(
+            DATA_FILE,
+            &products,
+            &suppliers
+        ) == 0) {
+
+        // Uspjesno spremanje
+        if (globalConfig.verbose)
+
+            printf(
+                "Podaci spremljeni "
+                "prije izlaza.\n"
+            );
     }
     else {
-        fprintf(stderr, "Greska pri spremanju podataka.\n");
+
+        // Greska pri spremanju
+        fprintf(
+            stderr,
+            "Greska pri spremanju podataka.\n"
+        );
     }
 
+
+    // Oslobadjanje memorije proizvoda
     product_free(&products);
+
+    // Oslobadjanje memorije dobavljaca
     supplier_free(&suppliers);
+
+
+    // Cleanup utility sustava
     cleanup_utils();
+
+
+    // Povratna vrijednost operativnom sustavu
+    // 0 = uspjesan zavrsetak programa
     return 0;
 }
