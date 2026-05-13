@@ -1,10 +1,10 @@
 /*
-  category.c
-  Upravljanje kategorijama proizvoda
+  category.c - Logika za kategorije ribolovne opreme
 */
 
 #include "header.h"
 
+// Pretvaranje numericke vrijednosti enuma u citljivi tekst
 const char* category_get_name(int categoryId) {
     switch (categoryId) {
         case CAT_STAPOVI: return "Stapovi";
@@ -16,13 +16,7 @@ const char* category_get_name(int categoryId) {
     }
 }
 
+// Provjera je li unesena kategorija unutar dozvoljenih granica
 int is_valid_category(int categoryId) {
     return (categoryId >= 0 && categoryId < CAT_COUNT);
-}
-
-void print_all_categories(void) {
-    printf("\nDostupne kategorije:\n");
-    for (int i = 0; i < CAT_COUNT; ++i) {
-        printf("%d. %s\n", i, category_get_name(i));
-    }
 }
