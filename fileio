@@ -1,96 +1,82 @@
 /*
-  fileio.c
-  Ucitavanje i spremanje podataka u binarnu datoteku, kopiranje datoteka
+  fileio.c - Modul za trajno spremiste podataka
+  Ovdje koristimo binarne datoteke jer su brze i efikasnije od tekstualnih.
 */
 
 #include "header.h"
 
+// Spremanje svih podataka u binarnu datoteku
 int fileio_save_all(const char* filename, const ProductArray* products, const SupplierArray* suppliers) {
     if (!filename || !products || !suppliers) return -1;
 
+    // Otvaranje datoteke za pisanje u binarnom nacinu ("wb")
     FILE* f = fopen(filename, "wb");
-    if (!f) { perror("fopen za pisanje"); return errno; }
+    if (!f) { 
+        perror("Greska pri otvaranju datoteke za spremanje"); // Ispis sistemske greske
+        return errno; 
+    }
 
-    if (fwrite(&products->size,  sizeof(size_t), 1, f) != 1) { perror("fwrite"); fclose(f); return -1; }
-    if (fwrite(&suppliers->size, sizeof(size_t), 1, f) != 1) { perror("fwrite"); fclose(f); return -1; }
+    /* Zapisivanje zaglavlja: prvo spremamo broj elemenata kako bismo 
+       kod ucitavanja znali koliko memorije moramo alocirati. */
+    fwrite(&products->size,  sizeof(size_t), 1, f);
+    fwrite(&suppliers->size, sizeof(size_t), 1, f);
 
+    // Izravno pisanje cijelog polja struktura u datoteku (vrlo brzo)
     if (products->size > 0) {
-        if (fwrite(products->items, sizeof(Product), products->size, f) != products->size) {
-            perror("fwrite products"); fclose(f); return -1;
-        }
+        fwrite(products->items, sizeof(Product), products->size, f);
     }
     if (suppliers->size > 0) {
-        if (fwrite(suppliers->items, sizeof(Supplier), suppliers->size, f) != suppliers->size) {
-            perror("fwrite suppliers"); fclose(f); return -1;
-        }
+        fwrite(suppliers->items, sizeof(Supplier), suppliers->size, f);
     }
 
-    fclose(f);
+    fclose(f); // Obavezno zatvaranje resursa
     return 0;
 }
 
+// Ucitavanje podataka i dinamicka alokacija memorije na temelju procitanog
 int fileio_load_all(const char* filename, ProductArray* products, SupplierArray* suppliers) {
-    if (!filename || !products || !suppliers) return -1;
-
     FILE* f = fopen(filename, "rb");
-    if (!f) { perror("fopen za citanje"); return errno; }
+    if (!f) return -1;
 
     size_t pcount = 0, scount = 0;
+    // Citamo koliko elemenata trebamo ucitati
+    if (fread(&pcount, sizeof(size_t), 1, f) != 1) { fclose(f); return -1; }
+    if (fread(&scount, sizeof(size_t), 1, f) != 1) { fclose(f); return -1; }
 
-    if (fread(&pcount, sizeof(size_t), 1, f) != 1) {
-        if (feof(f)) { fclose(f); return 0; }
-        perror("fread"); fclose(f); return -1;
-    }
-    if (fread(&scount, sizeof(size_t), 1, f) != 1) {
-        perror("fread"); fclose(f); return -1;
-    }
-
-    product_init(products);
-    supplier_init(suppliers);
-
+    /* DINAMICKA ALOKACIJA: Rezerviramo tocno onoliko RAM-a koliko nam treba 
+       za podatke iz datoteke. */
     if (pcount > 0) {
         products->items = (Product*)malloc(pcount * sizeof(Product));
-        if (!products->items) { fclose(f); return -1; }
-        if (fread(products->items, sizeof(Product), pcount, f) != pcount) {
-            perror("fread products"); free(products->items); fclose(f); return -1;
+        if (products->items) {
+            fread(products->items, sizeof(Product), pcount, f);
+            products->size = products->capacity = pcount;
         }
-        products->size     = pcount;
-        products->capacity = pcount;
     }
 
     if (scount > 0) {
         suppliers->items = (Supplier*)malloc(scount * sizeof(Supplier));
-        if (!suppliers->items) { fclose(f); return -1; }
-        if (fread(suppliers->items, sizeof(Supplier), scount, f) != scount) {
-            perror("fread suppliers"); free(suppliers->items); fclose(f); return -1;
+        if (suppliers->items) {
+            fread(suppliers->items, sizeof(Supplier), scount, f);
+            suppliers->size = suppliers->capacity = scount;
         }
-        suppliers->size     = scount;
-        suppliers->capacity = scount;
     }
 
     fclose(f);
-    product_remove_duplicates(products);
-    supplier_remove_duplicates(suppliers);
     return 0;
 }
 
+// Funkcija za kopiranje datoteke (npr. za Backup)
+// Koristi buffer za ucinkovit prijenos podataka
 int file_copy(const char* src, const char* dst) {
-    if (!src || !dst) return -1;
-
     FILE* fs = fopen(src, "rb");
-    if (!fs) { perror("fopen src"); return errno; }
-
     FILE* fd = fopen(dst, "wb");
-    if (!fd) { perror("fopen dst"); fclose(fs); return errno; }
+    if (!fs || !fd) return -1;
 
-    char   buf[4096];
+    char buf[4096]; // Privremeni spremnik od 4KB
     size_t n;
     while ((n = fread(buf, 1, sizeof(buf), fs)) > 0) {
-        if (fwrite(buf, 1, n, fd) != n) {
-            perror("fwrite"); fclose(fs); fclose(fd); return -1;
-        }
+        fwrite(buf, 1, n, fd);
     }
-    if (ferror(fs)) { perror("fread"); fclose(fs); fclose(fd); return -1; }
 
     fclose(fs);
     fclose(fd);
