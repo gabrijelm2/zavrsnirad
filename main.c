@@ -90,7 +90,7 @@ int main(void) {
      * SPREMINANJE PODATAKA PRIJE IZLAZA
      * 
      * Sprema sve izmijenjene podatke (proizvode, dobavljače) u binarnu datoteku
-     * kako bi se njihovanje sprječilo gubitak podataka.
+     * kako bi se sprječio gubitak podataka.
      */
     if (fileio_save_all(DATA_FILE, &products, &suppliers) == 0) {
         /* Spremanje je uspjesno */
