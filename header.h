@@ -1,7 +1,6 @@
 /*
-  header.h - Zaglavlje sustava
-  Ovdje definiramo "nacrt" naseg programa: strukture podataka, enumeracije i 
-  prototipe svih funkcija koje se koriste kroz razlicite module.
+  header.h
+  Zajednicki header - tipovi, strukture, enumi i deklaracije funkcija
 */
 
 #ifndef HEADER_H
@@ -16,9 +15,10 @@
 #include <string.h>
 #include <errno.h>
 
-/* ENUMERACIJE (Nabrojani tipovi) 
-   Omogucuju bolju citljivost koda zamjenom magicnih brojeva opisnim nazivima.
-*/
+/* ==============================
+   Enumi
+   ============================== */
+
 typedef enum ProductCategory {
     CAT_STAPOVI = 0,
     CAT_ROLE,
@@ -28,21 +28,27 @@ typedef enum ProductCategory {
     CAT_COUNT
 } ProductCategory;
 
+typedef enum OrderStatus {
+    ORDER_PENDING = 0,
+    ORDER_SHIPPED,
+    ORDER_DELIVERED,
+    ORDER_CANCELLED
+} OrderStatus;
+
 typedef enum MainOption {
-    OPT_EXIT          = 0,
-    OPT_PRODUCTS      = 1,
-    OPT_SUPPLIERS     = 2,
-    OPT_REPORTS       = 3,
+    OPT_EXIT = 0,
+    OPT_PRODUCTS = 1,
+    OPT_SUPPLIERS = 2,
+    OPT_REPORTS = 3,
     OPT_GENERATE_TEST = 4,
-    OPT_BACKUP        = 8,
-    OPT_SAVE          = 9
+    OPT_BACKUP = 8,
+    OPT_SAVE = 9
 } MainOption;
 
-/* STRUKTURE PODATAKA 
-   Product i Supplier su osnovni objekti s kojima radimo.
-   ProductArray i SupplierArray su omotaci koji nam omogucuju dinamicko 
-   povecanje polja (kapacitet i trenutna velicina).
-*/
+/* ==============================
+   Strukture
+   ============================== */
+
 typedef struct Product {
     int    id;
     char   name[64];
@@ -52,17 +58,17 @@ typedef struct Product {
     int    supplierId;
 } Product;
 
-typedef struct ProductArray {
-    Product* items;    // Pokazivac na dinamicki alocirano polje
-    size_t   size;     // Trenutni broj elemenata u polju
-    size_t   capacity; // Maksimalni kapacitet prije nove alokacije
-} ProductArray;
-
 typedef struct Supplier {
     int  id;
     char name[64];
     char contact[64];
 } Supplier;
+
+typedef struct ProductArray {
+    Product* items;
+    size_t   size;
+    size_t   capacity;
+} ProductArray;
 
 typedef struct SupplierArray {
     Supplier* items;
@@ -70,30 +76,39 @@ typedef struct SupplierArray {
     size_t    capacity;
 } SupplierArray;
 
-/* Konfiguracija sustava */
 typedef struct Config {
-    int verbose; // Odreduje koliko ce sustav biti "pricljiv" u konzoli
+    int verbose;
 } Config;
+
+/* ==============================
+   Globalne varijable (extern)
+   ============================== */
 
 extern Config globalConfig;
 
-/* DEKLARACIJE FUNKCIJA (Prototipi)
-   Odvajanjem deklaracija omogucujemo da razlicite .c datoteke znaju jedne za druge.
-*/
+/* ==============================
+   Deklaracije - utils
+   ============================== */
 
-// Pomocne funkcije (utils.c)
-void init_utils(void);
-int  read_int(const char* prompt);
+void   init_utils(void);
+void   cleanup_utils(void);
+int    read_int(const char* prompt);
 double read_double(const char* prompt);
-void read_string(const char* prompt, char* buf, size_t bufsize);
-int  file_exists(const char* path);
+void   read_string(const char* prompt, char* buf, size_t bufsize);
+int    file_exists(const char* filename);
 
-// Kategorije (category.c)
+/* ==============================
+   Deklaracije - category
+   ============================== */
+
 const char* category_get_name(int categoryId);
-int  is_valid_category(int categoryId);
-void print_all_categories(void);
+int         is_valid_category(int categoryId);
+void        print_all_categories(void);
 
-// Upravljanje proizvodima (product.c) - CRUID operacije
+/* ==============================
+   Deklaracije - product
+   ============================== */
+
 void     product_init(ProductArray* arr);
 void     product_free(ProductArray* arr);
 int      product_add(ProductArray* arr, const Product* p);
@@ -105,9 +120,14 @@ void     product_print_all(const ProductArray* arr);
 int      product_generate_test_data(ProductArray* arr, size_t n);
 int      product_compare_by_id(const void* a, const void* b);
 int      product_compare_by_name(const void* a, const void* b);
+int      product_id_exists(const ProductArray* arr, int id);
+int      product_name_exists(const ProductArray* arr, const char* name);
 void     product_remove_duplicates(ProductArray* arr);
 
-// Upravljanje dobavljacima (supplier.c)
+/* ==============================
+   Deklaracije - supplier
+   ============================== */
+
 void      supplier_init(SupplierArray* arr);
 void      supplier_free(SupplierArray* arr);
 int       supplier_add(SupplierArray* arr, const Supplier* s);
@@ -122,12 +142,18 @@ int       supplier_id_exists(const SupplierArray* arr, int id);
 int       supplier_name_exists(const SupplierArray* arr, const char* name);
 void      supplier_remove_duplicates(SupplierArray* arr);
 
-// Rad s datotekama (fileio.c)
+/* ==============================
+   Deklaracije - fileio
+   ============================== */
+
 int fileio_save_all(const char* filename, const ProductArray* products, const SupplierArray* suppliers);
 int fileio_load_all(const char* filename, ProductArray* products, SupplierArray* suppliers);
 int file_copy(const char* src, const char* dst);
 
-// Izbornik (menu.c)
+/* ==============================
+   Deklaracije - menu
+   ============================== */
+
 void main_menu(ProductArray* products, SupplierArray* suppliers, const char* dataFile);
 
-#endif
+#endif /* HEADER_H */
