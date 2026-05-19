@@ -1,0 +1,220 @@
+Pregled implementacije kriterija po projektu - Skladiste ribolovne opreme
+
+1. CRUID - Create, Read, Update, InsertDelete
+//CREATE dodavanje novog proizvoda
+int product_add(ProductArray* arr, const Product* p) {
+    if (!arr || !p) return -1;
+    if (product_id_exists(arr, p->id)) return -2;
+    if (product_name_exists(arr, p->name)) return -3;
+    if (arr->size >= arr->capacity) {
+        if (grow_product_array(arr) != 0) return -1;
+    }
+    arr->items[arr->size++] = *p;
+    return 0;
+}
+
+2. Odabir primitivnih tipova podataka
+// product.c
+typedef struct Product {
+    int id;
+    char name[64];
+    int categoryId;
+    double price;
+    int quantity;
+    int supplierId;
+} Product;
+
+3. Slozeni tipovi podataka
+typedef struct ProductArray {
+    Product* items;
+    size_t size;
+    size_t capacity;
+} ProductArray;
+
+4. typedef sa strukturama i enum tipovima
+typedef enum ProductCategory {
+    CAT_STAPOVI = 0,
+    CAT_ROLE,
+    CAT_NAJLON,
+    CAT_UDICE,
+    CAT_HRANA,
+    CAT_COUNT
+} ProductCategory;
+
+5. Imenovanje identifikatora
+// snake_case funkcije i varijable
+void product_init(ProductArray* arr);
+int product_find_by_id(ProductArray* arr, int id);
+Config globalConfig;
+// UPPER_CASE enum konstante
+CAT_STAPOVI, CAT_ROLE, OPT_EXIT, OPT_PRODUCTS
+
+6. Kljucna rijec static
+// product.c
+static int grow_product_array(ProductArray* arr) {
+    // ...
+}
+
+7. Organizacija izvornog koda
+// Struktura projekta:
+// header.h -> typedef, enum, extern deklaracije, prototipi
+// main.c -> inicijalizacija, pokretanje, cleanup
+// product.c -> CRUD i pomocne funkcije za proizvode
+// supplier.c -> CRUD i pomocne funkcije za dobavljace
+// category.c -> upravljanje kategorijama
+// fileio.c -> binarni I/O, kopiranje datoteka
+// menu.c -> izbornici i interakcija
+// utils.c -> pomocne funkcije za unos, konfiguracija
+
+8. Kljucna rijec extern
+// header.h
+extern Config globalConfig;
+// utils.c
+Config globalConfig = { .verbose = 1 };
+
+9. Makro funkcije ili inline funkcije
+// category.c
+int is_valid_category(int categoryId) {
+    return (categoryId >= 0 && categoryId < CAT_COUNT);
+}
+
+10. Izbornik i podizbornici
+void main_menu(ProductArray* products, SupplierArray* suppliers, const char* dataFile) {
+    while (running) {
+        printf("1. Upravljanje proizvodima");
+        printf("2. Upravljanje dobavljacima");
+        printf("3. Izvjestaji");
+        // ...
+    }
+}
+
+11. Enum tipovi u izborniku
+typedef enum MainOption {
+    OPT_EXIT = 0,
+    OPT_PRODUCTS = 1,
+    OPT_SUPPLIERS = 2,
+    OPT_REPORTS = 3,
+    OPT_GENERATE_TEST = 4,
+    OPT_BACKUP = 8,
+    OPT_SAVE = 9
+} MainOption;
+
+12. Upotreba pokazivaca
+// product.c
+Product* product_find_by_id(ProductArray* arr, int id) {
+    for (size_t i = 0; i < arr->size; ++i) {
+        if (arr->items[i].id == id) return &arr->items[i];
+    }
+    return NULL;
+}
+
+13. Upotreba struktura i funkcija
+// menu.c
+Product* p = product_find_by_id(products, id);
+if (p) product_print(p);
+
+14. Zastita parametara kod svih funkcija
+// product.c
+int product_add(ProductArray* arr, const Product* p) {
+    if (!arr || !p) return -1;
+    // ...
+}
+
+15. Staticka polja - bez VLA
+// header.h
+typedef struct Product {
+    int id;
+    char name[64];
+    // ...
+} Product;
+
+16. Dinamicko zauzimanje memorije
+// fileio.c
+products->items = (Product*)malloc(pcount * sizeof(Product));
+
+17. malloc, calloc, realloc, free
+// product.c
+Product* tmp = (Product*)realloc(arr->items, newcap * sizeof(Product));
+// ...
+free(arr->items);
+
+18. Sigurno brisanje dinamicke memorije
+// product.c
+void product_free(ProductArray* arr) {
+    if (!arr) return;
+    free(arr->items);
+    arr->items = NULL;
+    arr->size = 0;
+    arr->capacity = 0;
+}
+
+19. Datoteke
+// fileio.c
+FILE* f = fopen(filename, "wb");
+if (!f) {
+    perror("fopen za pisanje");
+    return errno;
+}
+// ...
+fclose(f);
+
+20. fseek, ftell, rewind
+// fileio.c
+fseek(f, 0, SEEK_END);
+long size = ftell(f);
+rewind(f);
+
+21. remove, rename, kopiranje datoteka
+// fileio.c
+int file_copy(const char* src, const char* dst) {
+    // ...
+    FILE* fs = fopen(src, "rb");
+    FILE* fd = fopen(dst, "wb");
+    // ...
+    while ((n = fread(buf, 1, sizeof(buf), fs)) > 0) {
+        fwrite(buf, 1, n, fd);
+    }
+    // ...
+    fclose(fs);
+    fclose(fd);
+    return 0;
+}
+
+22. Upravljanje pogresama
+// fileio.c
+if (fread(&pcount, sizeof(size_t), 1, f) != 1) {
+    if (feof(f)) {
+        fclose(f);
+        return 0;
+    }
+    perror("fread");
+    fclose(f);
+    return -1;
+}
+
+23. Sortiranje - qsort
+// menu.c
+qsort(products->items, products->size, sizeof(Product), product_compare_by_name);
+
+24. Pretraživanje
+// product.c
+Product* product_find_by_id(ProductArray* arr, int id) {
+    for (size_t i = 0; i < arr->size; ++i) {
+        if (arr->items[i].id == id) return &arr->items[i];
+    }
+    return NULL;
+}
+
+25. Rekurzije
+// product.c
+int product_binary_search_recursive(const Product* items, int low, int high, int targetId) {
+    if (low > high) return -1;
+    int mid = low + (high - low) / 2;
+    if (items[mid].id == targetId) return mid;
+    if (items[mid].id > targetId) return product_binary_search_recursive(items, low, mid - 1, targetId);
+    return product_binary_search_recursive(items, mid + 1, high, targetId);
+}
+
+26. Pokazivace na funkcije
+// menu.c
+qsort(products->items, products->size, sizeof(Product), product_compare_by_name);
