@@ -466,3 +466,17 @@ void product_remove_duplicates(ProductArray* arr) {
     // Novi broj elemenata
     arr->size = write;
 }
+
+// Rekurzivni binarni search (Pravilo 24 i 25)
+int product_binary_search_recursive(const Product* items, int low, int high, int targetId) {
+    if (low > high) return -1; // Bazni slucaj: nije pronaden
+
+    int mid = low + (high - low) / 2;
+
+    if (items[mid].id == targetId) return mid; // Pronaden!
+
+    if (items[mid].id > targetId) {
+        return product_binary_search_recursive(items, low, mid - 1, targetId); // Trazi lijevo
+    }
+    return product_binary_search_recursive(items, mid + 1, high, targetId); // Trazi desno
+}
