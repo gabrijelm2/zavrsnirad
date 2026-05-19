@@ -1,6 +1,9 @@
 /*
   supplier.c
   CRUD operacije i pomocne funkcije za dobavljace
+
+  // 7 - Organizacija izvornog koda: supplier.c je odvojen modul za sve operacije nad dobavljacima
+  // 1 - CRUID: ovaj fajl implementira Create (add), Read (find), Update, InsertDelete za dobavljace
 */
 
 #include "header.h"
@@ -10,30 +13,29 @@
 // Funkcija za povecavanje kapaciteta niza
 // ==========================================
 
+// 6 - static lokalna funkcija: grow_supplier_array vidljiva samo unutar supplier.c
+// 13 - Funkcija radi tocno jedan posao: povecava kapacitet dinamickog niza
+// 14 - Zastita parametara: provjera !arr na pocetku
 static int grow_supplier_array(SupplierArray* arr) {
 
-    // Provjera postoji li niz
+    // 14 - Zastita: provjera pokazivaca
     if (!arr)
         return -1;
 
-    // Ako postoji capacity:
-    // novi kapacitet = capacity * 2
-    // inace pocetni kapacitet = 8
+    // 2 - size_t: primitivni tip za kapacitet
     size_t newcap = arr->capacity ? arr->capacity * 2 : 8;
 
-    // realloc:
-    // povecava ili premjesta memoriju
+    // 17 - realloc: povecava dinamicki alociranu memoriju
+    // 16 - Dinamicko zauzimanje memorije za slozeni tip Supplier
     Supplier* tmp =
         (Supplier*)realloc(arr->items, newcap * sizeof(Supplier));
 
-    // Ako realloc nije uspio
+    // 18 - Provjera pokazivaca: ako realloc ne uspije, stara memorija ostaje netaknuta
     if (!tmp)
         return -1;
 
-    // Spremanje nove memorijske adrese
+    // 18 - Anuliranje: nova adresa se sprema; stara je ili prosirena ili preseli na novu lokaciju
     arr->items = tmp;
-
-    // Spremanje novog kapaciteta
     arr->capacity = newcap;
 
     return 0;
@@ -44,18 +46,16 @@ static int grow_supplier_array(SupplierArray* arr) {
 // Inicijalizacija niza dobavljaca
 // ==========================================
 
+// 13 - Funkcija: inicijalizira SupplierArray na sigurno pocetno stanje
+// 14 - Zastita: provjera !arr
 void supplier_init(SupplierArray* arr) {
 
     if (!arr)
         return;
 
-    // Nema elemenata
+    // 12 - Pokazivac postavljen na NULL (nije jos alociran)
     arr->items = NULL;
-
-    // Trenutni broj elemenata = 0
     arr->size = 0;
-
-    // Kapacitet memorije = 0
     arr->capacity = 0;
 }
 
@@ -64,21 +64,20 @@ void supplier_init(SupplierArray* arr) {
 // Oslobadjanje memorije
 // ==========================================
 
+// 13 - Funkcija: oslobadja dinamicki alociranu memoriju
+// 18 - Sigurno brisanje: free -> NULL -> reset velicine i kapaciteta
+// 17 - free(): koristena za oslobadjanje memorije
 void supplier_free(SupplierArray* arr) {
 
     if (!arr)
         return;
 
-    // Oslobadjanje dinamicke memorije
+    // 17 - free: oslobadjanje dinamicke memorije
     free(arr->items);
 
-    // Reset pointera
+    // 18 - Anuliranje pokazivaca nakon free (sprecava double-free i dangling pointer)
     arr->items = NULL;
-
-    // Reset velicine
     arr->size = 0;
-
-    // Reset kapaciteta
     arr->capacity = 0;
 }
 
@@ -87,20 +86,19 @@ void supplier_free(SupplierArray* arr) {
 // Provjera postoji li ID
 // ==========================================
 
+// 13 - Pomocna funkcija: linearna pretraga po ID-u
+// 14 - Zastita: provjera !arr
 int supplier_id_exists(const SupplierArray* arr, int id) {
 
     if (!arr)
         return 0;
 
-    // Prolazak kroz cijeli niz
     for (size_t i = 0; i < arr->size; ++i) {
 
-        // Ako postoji isti ID
         if (arr->items[i].id == id)
             return 1;
     }
 
-    // ID nije pronadjen
     return 0;
 }
 
@@ -109,16 +107,14 @@ int supplier_id_exists(const SupplierArray* arr, int id) {
 // Provjera postoji li naziv
 // ==========================================
 
+// 14 - Zastita parametara: provjera !arr i !name
 int supplier_name_exists(const SupplierArray* arr, const char* name) {
 
     if (!arr || !name)
         return 0;
 
-    // Prolazak kroz niz
     for (size_t i = 0; i < arr->size; ++i) {
 
-        // strcmp:
-        // vraca 0 ako su stringovi jednaki
         if (strcmp(arr->items[i].name, name) == 0)
             return 1;
     }
@@ -131,29 +127,31 @@ int supplier_name_exists(const SupplierArray* arr, const char* name) {
 // Dodavanje dobavljaca
 // ==========================================
 
+// 1 - CRUID - Create: dodavanje novog dobavljaca
+// 13 - Funkcija: product_add radi jedan posao - dodaje element u dinamicki niz
+// 14 - Zastita parametara: provjera !arr i !s
+// 12 - Pokazivac: s je const Supplier* - citamo podatke bez mijenjanja originala
 int supplier_add(SupplierArray* arr, const Supplier* s) {
 
-    // Provjera parametara
     if (!arr || !s)
         return -1;
 
-    // Provjera postoji li ID
+    // 14 - Provjera duplikata
     if (supplier_id_exists(arr, s->id))
         return -2;
 
-    // Provjera postoji li naziv
     if (supplier_name_exists(arr, s->name))
         return -3;
 
-    // Ako je niz pun
+    // Ako je niz pun - povecaj memoriju
     if (arr->size >= arr->capacity) {
 
-        // Povecaj memoriju
+        // 17 - realloc unutar grow_supplier_array
         if (grow_supplier_array(arr) != 0)
             return -1;
     }
 
-    // Dodavanje elementa na kraj niza
+    // Dodavanje elementa
     arr->items[arr->size++] = *s;
 
     return 0;
@@ -164,6 +162,10 @@ int supplier_add(SupplierArray* arr, const Supplier* s) {
 // Pretraga po ID-u
 // ==========================================
 
+// 1 - CRUID - Read: pretraga dobavljaca
+// 12 - Vraca pokazivac na element u nizu (ne kopiju)
+// 13 - Funkcija: jedan posao - pronadji dobavljaca po ID-u
+// 14 - Zastita: provjera !arr
 Supplier* supplier_find_by_id(SupplierArray* arr, int id) {
 
     if (!arr)
@@ -172,10 +174,9 @@ Supplier* supplier_find_by_id(SupplierArray* arr, int id) {
     // Linearna pretraga
     for (size_t i = 0; i < arr->size; ++i) {
 
-        // Ako je ID pronadjen
         if (arr->items[i].id == id)
 
-            // Vrati adresu elementa
+            // 12 - Vraca pokazivac na element u nizu
             return &arr->items[i];
     }
 
@@ -187,6 +188,9 @@ Supplier* supplier_find_by_id(SupplierArray* arr, int id) {
 // Azuriranje dobavljaca
 // ==========================================
 
+// 1 - CRUID - Update: azuriranje podataka postojeceg dobavljaca
+// 13 - Funkcija: azurira tocno jedan zapis
+// 14 - Zastita: provjera !arr i !s
 int supplier_update(SupplierArray* arr,
     int id,
     const Supplier* s) {
@@ -194,21 +198,19 @@ int supplier_update(SupplierArray* arr,
     if (!arr || !s)
         return -1;
 
-    // Pronadji postojeci zapis
+    // 12 - Pokazivac: found pokazuje direktno na element u nizu
     Supplier* found =
         supplier_find_by_id(arr, id);
 
-    // Ako ne postoji
     if (!found)
         return -1;
 
-    // Ako se ID mijenja
-    // provjeri postoji li novi ID
+    // Provjera konfliktnog ID-a
     if (s->id != id &&
         supplier_id_exists(arr, s->id))
         return -2;
 
-    // Kopiranje cijele strukture
+    // Kopiranje cijele strukture na lokaciju pokazivaca
     *found = *s;
 
     return 0;
@@ -219,36 +221,32 @@ int supplier_update(SupplierArray* arr,
 // Brisanje dobavljaca
 // ==========================================
 
+// 1 - CRUID - InsertDelete: brisanje dobavljaca iz niza
+// 13 - Funkcija: jedan posao - brise element i kompaktira niz
+// 14 - Zastita: provjera !arr
 int supplier_delete(SupplierArray* arr, int id) {
 
     if (!arr)
         return -1;
 
-    // idx = pozicija elementa za brisanje
     size_t idx = arr->size;
 
-    // Trazenje elementa
     for (size_t i = 0; i < arr->size; ++i) {
 
         if (arr->items[i].id == id) {
-
             idx = i;
             break;
         }
     }
 
-    // Ako nije pronadjen
     if (idx == arr->size)
         return -1;
 
-    // Ako nije zadnji element
+    // Zadnji element prebaci na mjesto obrisanog (brzo brisanje O(1))
     if (idx != arr->size - 1)
-
-        // Zadnji element prebaci na mjesto obrisanog
         arr->items[idx] =
         arr->items[arr->size - 1];
 
-    // Smanji broj elemenata
     arr->size--;
 
     return 0;
@@ -259,6 +257,8 @@ int supplier_delete(SupplierArray* arr, int id) {
 // Ispis jednog dobavljaca
 // ==========================================
 
+// 13 - Funkcija: jedan posao - ispis jednog zapisa
+// 14 - Zastita: provjera !s
 void supplier_print(const Supplier* s) {
 
     if (!s)
@@ -277,21 +277,19 @@ void supplier_print(const Supplier* s) {
 // Ispis svih dobavljaca
 // ==========================================
 
+// 13 - Funkcija: iterira i ispisuje sve elemente
+// 14 - Zastita: provjera !arr
 void supplier_print_all(const SupplierArray* arr) {
 
     if (!arr)
         return;
 
-    // Ako nema elemenata
     if (arr->size == 0) {
-
         printf("Nema dobavljaca.\n");
         return;
     }
 
-    // Ispis svih elemenata
     for (size_t i = 0; i < arr->size; ++i) {
-
         supplier_print(&arr->items[i]);
     }
 }
@@ -301,31 +299,28 @@ void supplier_print_all(const SupplierArray* arr) {
 // Generiranje testnih podataka
 // ==========================================
 
+// 13 - Funkcija: generira testne podatke za dobavljace
+// 14 - Zastita: provjera !arr
 int supplier_generate_test_data(SupplierArray* arr,
     size_t n) {
 
     if (!arr)
         return -1;
 
-    // Pocetni ID
     int startId = 1;
 
-    // Pronadji najveci ID
     for (size_t i = 0; i < arr->size; ++i) {
-
         if (arr->items[i].id >= startId)
             startId = arr->items[i].id + 1;
     }
 
-    // Generiranje podataka
     for (size_t i = 0; i < n; ++i) {
 
+        // 3 - Slozeni tip: lokalna Supplier struktura inicijalizirana na 0
         Supplier s = { 0 };
 
-        // Postavljanje ID-a
         s.id = startId + (int)i;
 
-        // Generiranje naziva
         snprintf(
             s.name,
             sizeof(s.name),
@@ -333,7 +328,6 @@ int supplier_generate_test_data(SupplierArray* arr,
             s.id
         );
 
-        // Generiranje kontakta
         snprintf(
             s.contact,
             sizeof(s.contact),
@@ -341,14 +335,10 @@ int supplier_generate_test_data(SupplierArray* arr,
             s.id
         );
 
-        // Dodavanje u niz
         int rc = supplier_add(arr, &s);
 
-        // Ako postoji duplikat
         if (rc == -2 || rc == -3)
             continue;
-
-        // Ostale greske
         else if (rc != 0)
             return -1;
     }
@@ -361,14 +351,16 @@ int supplier_generate_test_data(SupplierArray* arr,
 // Comparator za qsort po ID-u
 // ==========================================
 
+// 23 - Sortiranje: comparator funkcija za qsort
+// 26 - Pokazivac na funkciju: ova funkcija se prosljedjuje qsortu kao argument (pointer na funkciju)
+// 12 - Pokazivaci: void* parametri pretvoreni u konkretne tipove
 int supplier_compare_by_id(const void* a,
     const void* b) {
 
-    // Pretvaranje void* u Supplier*
+    // 12 - Pretvaranje void* u Supplier*
     const Supplier* sa = (const Supplier*)a;
     const Supplier* sb = (const Supplier*)b;
 
-    // Razlika ID-eva
     return (sa->id - sb->id);
 }
 
@@ -377,12 +369,16 @@ int supplier_compare_by_id(const void* a,
 // Uklanjanje duplikata
 // ==========================================
 
+// 13 - Funkcija: uklanja duplikate sortiranjem pa linearnim prolaskom
+// 23 - Sortiranje: koristi qsort s comparatorom
+// 26 - Pokazivac na funkciju: supplier_compare_by_id se prosljedjuje qsortu
 void supplier_remove_duplicates(SupplierArray* arr) {
 
     if (!arr || arr->size <= 1)
         return;
 
-    // Sortiranje po ID-u
+    // 23 - qsort: standardna bibliotecna funkcija za sortiranje
+    // 26 - Pokazivac na funkciju: supplier_compare_by_id proslijedjen kao argument
     qsort(
         arr->items,
         arr->size,
@@ -390,27 +386,22 @@ void supplier_remove_duplicates(SupplierArray* arr) {
         supplier_compare_by_id
     );
 
-    // write = pozicija za zapisivanje
     size_t write = 0;
 
-    // read = citanje elemenata
     for (size_t read = 0;
         read < arr->size;
         ++read) {
 
-        // Ako je prvi element
-        // ili nije duplikat
         if (write == 0 ||
             arr->items[read].id !=
             arr->items[write - 1].id) {
 
-            // Kopiranje elementa
             arr->items[write++] =
                 arr->items[read];
         }
         else {
 
-            // Verbose upozorenje
+            // 8 - extern globalConfig: pristup globalnoj varijabli definiranoj u utils.c
             if (globalConfig.verbose) {
 
                 printf(
@@ -424,6 +415,5 @@ void supplier_remove_duplicates(SupplierArray* arr) {
         }
     }
 
-    // Novi broj elemenata
     arr->size = write;
 }

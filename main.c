@@ -1,6 +1,8 @@
 /*
   main.c
   Glavna ulazna tocka programa
+
+  // 7 - Organizacija izvornog koda: main.c sadrzi samo inicijalizaciju, pokretanje i cleanup
 */
 
 #include "header.h"
@@ -13,30 +15,32 @@
 
 int main(void) {
 
-    // Inicijalizacija utility sustava
+    // 13 - Funkcija: init_utils inicijalizira globalne postavke programa
     init_utils();
 
 
-    // Naziv glavne binarne datoteke
+    // 15 - Staticko polje (string literal): const char* pokazivac na ime datoteke
+    // 2 - Primitivni tip: const char* za naziv datoteke
     const char* DATA_FILE = "data.bin";
 
 
-    // Kreiranje struktura za proizvode
-    // i dobavljace
+    // 3 - Slozeni tipovi podataka: ProductArray i SupplierArray su typedef struct
     ProductArray products;
     SupplierArray suppliers;
 
 
-    // Inicijalizacija nizova
+    // 13 - Inicijalizacija: postavljanje pocetnih vrijednosti struktura
+    // 12 - Pokazivaci: prosljedjujemo adrese lokalnih struktura
     product_init(&products);
     supplier_init(&suppliers);
 
 
-    // Provjera postoji li data.bin
+    // 19 - Datoteke: provjera postojanja datoteke prije otvaranja
     if (file_exists(DATA_FILE)) {
+
+        // 20 - ftell/fseek/rewind: fileio_get_size koristi ove funkcije za velicinu
         long velicina = fileio_get_size(DATA_FILE);
         printf("Ucitana baza podataka ima velicinu od: %ld bajtova.\n", velicina);
-
 
         printf(
             "Pronadjena datoteka '%s' "
@@ -45,7 +49,7 @@ int main(void) {
             DATA_FILE
         );
 
-        // Pitanje korisniku
+        // Korisnicko pitanje o ucitavanju
         int choice =
             read_int(
                 "Zelis li ucitati postojece "
@@ -53,17 +57,17 @@ int main(void) {
                 "(1 = DA, 0 = NE): "
             );
 
-        // Ako korisnik zeli ucitati podatke
         if (choice == 1) {
 
-            // Ucitavanje iz datoteke
+            // 19 - Datoteke: ucitavanje iz binarne datoteke
+            // 1 - CRUID - Read: ucitavanje svih podataka iz datoteke
             if (fileio_load_all(
                 DATA_FILE,
                 &products,
                 &suppliers
             ) != 0)
 
-                // Greska pri ucitavanju
+                // 22 - stderr: greske se ispisuju na standardni izlaz za greske
                 fprintf(
                     stderr,
                     "Greska pri ucitavanju "
@@ -73,7 +77,7 @@ int main(void) {
                     DATA_FILE
                 );
 
-            // Ako je verbose mod ukljucen
+            // 8 - extern: pristup globalnoj varijabli globalConfig iz utils.c
             else if (globalConfig.verbose)
 
                 printf(
@@ -85,7 +89,7 @@ int main(void) {
         }
         else {
 
-            // Korisnik ne zeli ucitati podatke
+            // 8 - extern: globalConfig.verbose za uvjetni ispis
             if (globalConfig.verbose)
 
                 printf(
@@ -96,7 +100,6 @@ int main(void) {
     }
     else {
 
-        // Datoteka ne postoji
         if (globalConfig.verbose)
 
             printf(
@@ -107,7 +110,8 @@ int main(void) {
     }
 
 
-    // Pokretanje glavnog izbornika
+    // 10 - Izbornik: pokretanje glavnog izbornika programa
+    // 12 - Pokazivaci: prosljedjujemo adrese struktura i string
     main_menu(
         &products,
         &suppliers,
@@ -115,14 +119,14 @@ int main(void) {
     );
 
 
-    // Automatsko spremanje prije izlaza
+    // 19 - Datoteke: automatsko spremanje prije izlaza
+    // 1 - CRUID: zapis podataka u datoteku pri izlasku
     if (fileio_save_all(
         DATA_FILE,
         &products,
         &suppliers
     ) == 0) {
 
-        // Uspjesno spremanje
         if (globalConfig.verbose)
 
             printf(
@@ -132,7 +136,7 @@ int main(void) {
     }
     else {
 
-        // Greska pri spremanju
+        // 22 - stderr: greske na standardni izlaz za greske
         fprintf(
             stderr,
             "Greska pri spremanju podataka.\n"
@@ -140,18 +144,16 @@ int main(void) {
     }
 
 
-    // Oslobadjanje memorije proizvoda
+    // 17 - free + 18 - anuliranje: oslobadjanje dinamicke memorije
+    // 18 - Sigurno brisanje: product_free i supplier_free resetiraju pointer na NULL
     product_free(&products);
-
-    // Oslobadjanje memorije dobavljaca
     supplier_free(&suppliers);
 
 
-    // Cleanup utility sustava
+    // 13 - Funkcija: cleanup_utils za eventualni cleanup resursa
     cleanup_utils();
 
 
-    // Povratna vrijednost operativnom sustavu
-    // 0 = uspjesan zavrsetak programa
+    // 0 = uspjesan zavrsetak programa (konvencija)
     return 0;
 }

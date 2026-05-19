@@ -4,16 +4,20 @@
   - unos podataka
   - provjeru datoteka
   - konfiguraciju programa
+
+  // 7 - Organizacija izvornog koda: utils.c je odvojen modul za pomocne funkcije
 */
 
 #include "header.h"   // Ucitavanje zajednickog header fajla
 
-// Globalna konfiguracija programa
-// verbose = 1 znaci da ce program ispisivati dodatne informacije
+// 6 - static globalna varijabla NIJE koristena ovdje (globalConfig nije static jer mora biti extern)
+// 8 - extern: globalConfig je deklariran kao extern u headeru, a DEFINIRAN ovdje u utils.c
+// 3 - Slozeni tip Config za globalnu konfiguraciju programa
 Config globalConfig = { .verbose = 1 };
 
 
-// Funkcija za inicijalizaciju utility sustava
+// 13 - Funkcija: init_utils inicijalizira utility sustav
+// 9 - Ova funkcija je jednostavna (moze se razmatrati kao kandidat za inline)
 void init_utils(void) {
 
     // Postavljanje verbose moda
@@ -21,35 +25,32 @@ void init_utils(void) {
 }
 
 
-// Funkcija za cleanup
-// Trenutno ne radi nista ali ostavljena za buduce potrebe
+// 13 - Funkcija: cleanup_utils - placeholder za buduce ciscenje resursa
+// 9 - Jednostavna/prazna funkcija; kandidat za inline ili makro u buducnosti
 void cleanup_utils(void) {
 
     /* placeholder */
 }
 
 
-// Funkcija za siguran unos integer vrijednosti
+// 13 - Funkcija: read_int za siguran unos integera s tipkovnice
+// 14 - Zastita parametara: prompt je const char* - ne moze se slucajno mijenjati
 int read_int(const char* prompt) {
 
-    // Buffer za unos teksta s tipkovnice
+    // 15 - Staticko polje fiksne velicine umjesto VLA
     char buf[128];
 
-    // Varijabla u koju spremamo broj
+    // 2 - Primitivni tip int za pohranu unesene vrijednosti
     int val = 0;
 
     // Ispis poruke korisniku
     printf("%s", prompt);
 
-    // fgets cita cijeli red teksta
-    // stdin = tipkovnica
-    // sizeof(buf) = maksimalna velicina buffera
+    // 19 - Datoteke/stdin: fgets cita iz standardnog ulaza, provjera povratne vrijednosti
     if (!fgets(buf, sizeof(buf), stdin))
         return 0;
 
-    // sscanf pretvara string u integer
-    // %d oznacava integer
-    // &val = adresa gdje spremiti broj
+    // 12 - Pokazivaci nisu direktno potrebni ovdje; sscanf koristi adresu &val
     if (sscanf(buf, "%d", &val) != 1)
         return 0;
 
@@ -58,79 +59,70 @@ int read_int(const char* prompt) {
 }
 
 
-// Funkcija za unos decimalnog broja
+// 13 - Funkcija: read_double za unos realnog broja
+// 14 - Zastita: prompt je const, provjera povratne vrijednosti fgets-a
 double read_double(const char* prompt) {
 
-    // Buffer za tekstualni unos
+    // 15 - Staticko polje fiksne velicine
     char buf[128];
 
-    // Varijabla za decimalni broj
+    // 2 - double: odabrani primitivni tip za realne vrijednosti
     double val = 0.0;
 
-    // Ispis poruke
     printf("%s", prompt);
 
-    // Citanje teksta
+    // 19 - stdin: fgets s provjerom pointera
     if (!fgets(buf, sizeof(buf), stdin))
         return 0.0;
 
-    // Pretvaranje stringa u double
-    // %lf = format za double
+    // sscanf pretvara string u double
     if (sscanf(buf, "%lf", &val) != 1)
         return 0.0;
 
-    // Vracanje decimalnog broja
     return val;
 }
 
 
-// Funkcija za unos stringa
+// 13 - Funkcija: read_string za siguran unos stringa
+// 14 - Zastita parametara: provjera buf != NULL i bufsize > 0 na pocetku
 void read_string(const char* prompt, char* buf, size_t bufsize) {
 
-    // Provjera postoji li buffer
-    // i ima li mjesta za upis
+    // 14 - Zastita: provjera da buffer postoji i ima mjesta
     if (!buf || bufsize == 0)
         return;
 
-    // Ispis poruke korisniku
     printf("%s", prompt);
 
-    // fgets cita tekst iz tipkovnice
+    // 19 - stdin: fgets cita sigurno do bufsize znakova
     if (!fgets(buf, (int)bufsize, stdin)) {
 
-        // Ako unos nije uspio
-        // postavi prazan string
+        // Ako unos nije uspio postavi prazan string
         buf[0] = '\0';
-
         return;
     }
 
-    // Duljina unesenog stringa
+    // 2 - size_t: odabrani primitivni tip za duljinu stringa
     size_t len = strlen(buf);
 
-    // fgets sprema ENTER znak '\n'
-    // pa ga ovdje uklanjamo
+    // Uklanjanje '\n' koji fgets sprema
     if (len > 0 && buf[len - 1] == '\n')
         buf[len - 1] = '\0';
 }
 
 
-// Funkcija provjerava postoji li datoteka
+// 13 - Funkcija: file_exists provjerava postoji li datoteka
+// 19 - Datoteke: fopen s provjerom pointera i zatvaranje fclose
 int file_exists(const char* filename) {
 
-    // Pokusaj otvaranja datoteke u binary read modu
+    // 19 - Provjera pokazivaca FILE*: ako fopen vrati NULL, datoteka ne postoji
     FILE* f = fopen(filename, "rb");
 
-    // Ako je fopen uspio
-    // datoteka postoji
     if (f) {
 
-        // Zatvaranje datoteke
+        // 19 - Zatvaranje datoteke nakon provjere
         fclose(f);
-
         return 1;
     }
 
-    // Datoteka ne postoji
     return 0;
 }
