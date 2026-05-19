@@ -4,8 +4,10 @@
 
   Sadrzi:
   - include biblioteke
+  // 7 - Organizacija izvornog koda: svi tipovi, deklaracije i extern varijable su centralizirani u jednom headeru
   - enum tipove
   - strukture
+  // 3 - Slozeni tipovi podataka: Product, Supplier, ProductArray, SupplierArray, Config
   - deklaracije funkcija
   - globalne varijable
 */
@@ -38,12 +40,14 @@
 #include <stdio.h>
 
 // Dinamicka memorija
+// 16 - Priprema za dinamicko zauzimanje memorije (malloc, calloc, realloc, free)
 #include <stdlib.h>
 
 // String funkcije
 #include <string.h>
 
 // Error kodovi
+// 22 - errno: ukljucen za upravljanje pogresama
 #include <errno.h>
 
 
@@ -52,7 +56,8 @@
 // ==========================================
 
 
-// Enum kategorija proizvoda
+// 4 - typedef enum: ProductCategory definiran s typedef za jednostavniju upotrebu
+// 11 - Kod izbornika koristiti enum tipove: kategorije su enum, koriste se u menuju
 typedef enum ProductCategory {
 
     // Stapovi imaju vrijednost 0
@@ -77,7 +82,7 @@ typedef enum ProductCategory {
 } ProductCategory;
 
 
-// Enum statusa narudzbe
+// 4 - typedef enum: OrderStatus definiran s typedef
 typedef enum OrderStatus {
 
     // Narudzba kreirana
@@ -95,7 +100,8 @@ typedef enum OrderStatus {
 } OrderStatus;
 
 
-// Enum glavnog izbornika
+// 4 - typedef enum: MainOption za opcije glavnog izbornika
+// 11 - Enum tipovi koriste se za opcije izbornika umjesto golih integera
 typedef enum MainOption {
 
     // Izlaz
@@ -127,64 +133,69 @@ typedef enum MainOption {
 // ==========================================
 
 
-// Struktura proizvoda
+// 3 - Slozeni tip podataka: struktura Product za pohranu podataka o proizvodu
+// 4 - typedef struct: Product definiran s typedef za jednostavniju upotrebu
+// 13 - Primjena struktura: Product grupira sve relevantne atribute proizvoda
 typedef struct Product {
 
-    // ID proizvoda
+    // 2 - Primitivni tip int za ID
     int id;
 
-    // Naziv proizvoda
+    // 15 - Staticko polje: char array fiksne velicine umjesto VLA
     char name[64];
 
-    // ID kategorije
+    // 2 - Primitivni tip int za ID kategorije
     int categoryId;
 
-    // Cijena proizvoda
+    // 2 - Primitivni tip double za cijenu (realni broj)
     double price;
 
-    // Kolicina na skladistu
+    // 2 - Primitivni tip int za kolicinu
     int quantity;
 
-    // ID dobavljaca
+    // 2 - Primitivni tip int za ID dobavljaca
     int supplierId;
 
 } Product;
 
 
-// Struktura dobavljaca
+// 3 - Slozeni tip podataka: struktura Supplier
+// 4 - typedef struct: Supplier definiran s typedef
 typedef struct Supplier {
 
-    // ID dobavljaca
+    // 2 - int za ID
     int id;
 
-    // Naziv dobavljaca
+    // 15 - Staticko polje fiksne velicine
     char name[64];
 
-    // Kontakt dobavljaca
+    // 15 - Staticko polje fiksne velicine
     char contact[64];
 
 } Supplier;
 
 
-// Dinamicki niz proizvoda
+// 3 - Slozeni tip podataka: dinamicki niz proizvoda (wrapper oko dinamicke memorije)
+// 16 - Priprema za dinamicko zauzimanje: items ce biti alociran mallocom/reallocom
 typedef struct ProductArray {
 
-    // Pointer na niz proizvoda
+    // 12 - Pokazivac na niz proizvoda
     Product* items;
 
-    // Trenutni broj elemenata
+    // 2 - size_t za broj elemenata (odabran primitivni tip za velicinu)
     size_t size;
 
-    // Kapacitet memorije
+    // 2 - size_t za kapacitet memorije
     size_t capacity;
 
 } ProductArray;
 
 
-// Dinamicki niz dobavljaca
+// 3 - Slozeni tip podataka: dinamicki niz dobavljaca
+// 16 - Priprema za dinamicko zauzimanje: items ce biti alociran dinamicki
 typedef struct SupplierArray {
 
-    // Pointer na niz dobavljaca
+    // 12 - Pokazivac na niz dobavljaca
     Supplier* items;
 
     // Broj elemenata
@@ -196,7 +207,8 @@ typedef struct SupplierArray {
 } SupplierArray;
 
 
-// Globalna konfiguracija programa
+// 3 - Slozeni tip podataka: globalna konfiguracija programa
+// 4 - typedef struct: Config definiran s typedef
 typedef struct Config {
 
     // Verbose mod:
@@ -212,8 +224,8 @@ typedef struct Config {
 // ==========================================
 
 
-// extern:
-// varijabla postoji u drugom .c fajlu
+// 8 - extern: globalConfig deklariran ovdje, definiran u utils.c
+// extern oznacava da varijabla postoji u drugom .c fajlu
 extern Config globalConfig;
 
 
@@ -228,13 +240,14 @@ void init_utils(void);
 // Cleanup utility sustava
 void cleanup_utils(void);
 
-// Unos integera
+// 13 - Funkcije: read_int vrsi unos integera
+// 14 - Zastita parametara: prompt je const char* (ne moze se mijenjati)
 int read_int(const char* prompt);
 
 // Unos decimalnog broja
 double read_double(const char* prompt);
 
-// Unos stringa
+// 14 - Zastita parametara: prompt je const, buf dobiva bufsize za sigurno upisivanje
 void read_string(
     const char* prompt,
     char* buf,
@@ -250,7 +263,8 @@ int file_exists(const char* filename);
 // ==========================================
 
 
-// Pretvara category ID u tekst
+// 13 - Funkcija: category_get_name pretvara ID u string
+// 14 - Zastita: vraca const char* - rezultat se ne smije mijenjati
 const char* category_get_name(int categoryId);
 
 // Provjera je li kategorija valjana
@@ -265,76 +279,69 @@ void print_all_categories(void);
 // ==========================================
 
 
-// Inicijalizacija niza proizvoda
-void product_init(ProductArray* arr);
+// 13 - Funkcije za rad s produktima (CRUD + pomocne)
+// 14 - Zastita: arr je pointer koji se provjerava unutar svake funkcije
 
-// Oslobadjanje memorije
+void product_init(ProductArray* arr);
 void product_free(ProductArray* arr);
 
-// Dodavanje proizvoda
+// 1 - CRUID - Create: product_add
 int product_add(
     ProductArray* arr,
     const Product* p
 );
 
-// Pretraga po ID-u
+// 1 - CRUID - Read: product_find_by_id
+// 12 - Vraca pokazivac na pronadjeni proizvod
 Product* product_find_by_id(
     ProductArray* arr,
     int id
 );
 
-// Azuriranje proizvoda
+// 1 - CRUID - Update: product_update
 int product_update(
     ProductArray* arr,
     int id,
     const Product* p
 );
 
-// Brisanje proizvoda
+// 1 - CRUID - InsertDelete: product_delete
 int product_delete(
     ProductArray* arr,
     int id
 );
 
-// Ispis jednog proizvoda
 void product_print(const Product* p);
-
-// Ispis svih proizvoda
 void product_print_all(
     const ProductArray* arr
 );
 
-// Generiranje testnih podataka
 int product_generate_test_data(
     ProductArray* arr,
     size_t n
 );
 
-// Comparator po ID-u
+// 26 - Pokazivac na funkciju: ove funkcije se koriste kao argumenti za qsort/bsearch
 int product_compare_by_id(
     const void* a,
     const void* b
 );
 
-// Comparator po nazivu
 int product_compare_by_name(
     const void* a,
     const void* b
 );
 
-// Provjera postoji li ID
 int product_id_exists(
     const ProductArray* arr,
     int id
 );
 
-// Provjera postoji li naziv
 int product_name_exists(
     const ProductArray* arr,
     const char* name
 );
 
-// Uklanjanje duplikata
 void product_remove_duplicates(
     ProductArray* arr
 );
@@ -345,70 +352,58 @@ void product_remove_duplicates(
 // ==========================================
 
 
-// Inicijalizacija dobavljaca
+// 1 - CRUID operacije za dobavljace (Create, Read, Update, InsertDelete)
 void supplier_init(SupplierArray* arr);
-
-// Oslobadjanje memorije
 void supplier_free(SupplierArray* arr);
 
-// Dodavanje dobavljaca
 int supplier_add(
     SupplierArray* arr,
     const Supplier* s
 );
 
-// Pretraga po ID-u
+// 12 - Vraca pokazivac na pronadjenog dobavljaca
 Supplier* supplier_find_by_id(
     SupplierArray* arr,
     int id
 );
 
-// Azuriranje dobavljaca
 int supplier_update(
     SupplierArray* arr,
     int id,
     const Supplier* s
 );
 
-// Brisanje dobavljaca
 int supplier_delete(
     SupplierArray* arr,
     int id
 );
 
-// Ispis jednog dobavljaca
 void supplier_print(const Supplier* s);
-
-// Ispis svih dobavljaca
 void supplier_print_all(
     const SupplierArray* arr
 );
 
-// Generiranje testnih podataka
 int supplier_generate_test_data(
     SupplierArray* arr,
     size_t n
 );
 
-// Comparator po ID-u
+// 26 - Pokazivac na funkciju: koristi se kao argument za qsort
 int supplier_compare_by_id(
     const void* a,
     const void* b
 );
 
-// Provjera ID-a
 int supplier_id_exists(
     const SupplierArray* arr,
     int id
 );
 
-// Provjera naziva
 int supplier_name_exists(
     const SupplierArray* arr,
     const char* name
 );
 
-// Uklanjanje duplikata
 void supplier_remove_duplicates(
     SupplierArray* arr
 );
@@ -419,25 +414,27 @@ void supplier_remove_duplicates(
 // ==========================================
 
 
-// Spremanje svih podataka
+// 19 - Datoteke: funkcije za rad s binarnom datotekom
 int fileio_save_all(
     const char* filename,
     const ProductArray* products,
     const SupplierArray* suppliers
 );
 
-// Ucitavanje svih podataka
 int fileio_load_all(
     const char* filename,
     ProductArray* products,
     SupplierArray* suppliers
 );
 
-// Kopiranje datoteke
+// 21 - file_copy: implementacija kopiranja datoteke
 int file_copy(
     const char* src,
     const char* dst
 );
+
+// 20 - fseek/ftell/rewind: deklaracija funkcije za dobivanje velicine datoteke
+long fileio_get_size(const char* filename);
 
 
 // ==========================================
@@ -445,7 +442,7 @@ int file_copy(
 // ==========================================
 
 
-// Glavni izbornik programa
+// 10 - Izbornik: deklaracija glavnog izbornika
 void main_menu(
     ProductArray* products,
     SupplierArray* suppliers,
