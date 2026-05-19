@@ -84,7 +84,7 @@ void main_menu(ProductArray* products, SupplierArray* suppliers, const char* dat
         printf("1. Upravljanje proizvodima");
         printf("2. Upravljanje dobavljacima");
         printf("3. Izvjestaji");
-        // ...
+        // 
     }
 }
 
@@ -117,10 +117,10 @@ if (p) product_print(p);
 // product.c
 int product_add(ProductArray* arr, const Product* p) {
     if (!arr || !p) return -1;
-    // ...
+    // 
 }
 
-15. Staticka polja - bez VLA
+15. Staticka polja
 // header.h
 typedef struct Product {
     int id;
@@ -135,7 +135,7 @@ products->items = (Product*)malloc(pcount * sizeof(Product));
 17. malloc, calloc, realloc, free
 // product.c
 Product* tmp = (Product*)realloc(arr->items, newcap * sizeof(Product));
-// ...
+//
 free(arr->items);
 
 18. Sigurno brisanje dinamicke memorije
@@ -155,7 +155,7 @@ if (!f) {
     perror("fopen za pisanje");
     return errno;
 }
-// ...
+//
 fclose(f);
 
 20. fseek, ftell, rewind
@@ -165,20 +165,7 @@ long size = ftell(f);
 rewind(f);
 
 21. remove, rename, kopiranje datoteka
-// fileio.c
-int file_copy(const char* src, const char* dst) {
-    // ...
-    FILE* fs = fopen(src, "rb");
-    FILE* fd = fopen(dst, "wb");
-    // ...
-    while ((n = fread(buf, 1, sizeof(buf), fs)) > 0) {
-        fwrite(buf, 1, n, fd);
-    }
-    // ...
-    fclose(fs);
-    fclose(fd);
-    return 0;
-}
+
 
 22. Upravljanje pogresama
 // fileio.c
@@ -196,7 +183,7 @@ if (fread(&pcount, sizeof(size_t), 1, f) != 1) {
 // menu.c
 qsort(products->items, products->size, sizeof(Product), product_compare_by_name);
 
-24. Pretraživanje
+24.? Pretraživanje
 // product.c
 Product* product_find_by_id(ProductArray* arr, int id) {
     for (size_t i = 0; i < arr->size; ++i) {
