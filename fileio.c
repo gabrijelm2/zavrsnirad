@@ -42,7 +42,7 @@ int fileio_save_all(
     // ==========================================
 
     if (
-        fwrite(&products->size,sizeof(size_t),1,f) != 1) {
+        fwrite(&products->size, sizeof(size_t), 1, f) != 1) {
         perror("fwrite");
         fclose(f);
         return -1;
@@ -53,7 +53,7 @@ int fileio_save_all(
     // ==========================================
 
     if (
-        fwrite(&suppliers->size, sizeof(size_t),1,f) != 1) {
+        fwrite(&suppliers->size, sizeof(size_t), 1, f) != 1) {
         perror("fwrite");
         fclose(f);
         return -1;
@@ -64,7 +64,7 @@ int fileio_save_all(
     // ==========================================
 
     if (products->size > 0) {
-        if (fwrite(products->items,sizeof(Product), products->size,f) != products->size) {
+        if (fwrite(products->items, sizeof(Product), products->size, f) != products->size) {
             perror("fwrite products");
             fclose(f);
             return -1;
@@ -77,7 +77,7 @@ int fileio_save_all(
 
     if (suppliers->size > 0) {
 
-        if (fwrite(suppliers->items,sizeof(Supplier),suppliers->size,f) != suppliers->size) {
+        if (fwrite(suppliers->items, sizeof(Supplier), suppliers->size, f) != suppliers->size) {
             perror("fwrite suppliers");
             fclose(f);
             return -1;
@@ -122,7 +122,7 @@ int fileio_load_all(
     // Citanje broja proizvoda
     // ==========================================
 
-    if (fread(&pcount,sizeof(size_t),1,f) != 1) {
+    if (fread(&pcount, sizeof(size_t), 1, f) != 1) {
 
         // Ako je kraj datoteke
         if (feof(f)) {
@@ -139,7 +139,7 @@ int fileio_load_all(
     // ==========================================
 
     if (
-        fread(&scount,sizeof(size_t),1,f) != 1) {
+        fread(&scount, sizeof(size_t), 1, f) != 1) {
         perror("fread");
         fclose(f);
         return -1;
@@ -172,7 +172,7 @@ int fileio_load_all(
 
         // Ucitavanje proizvoda iz datoteke
         if (
-            fread(products->items,sizeof(Product),pcount,f) != pcount) {
+            fread(products->items, sizeof(Product), pcount, f) != pcount) {
 
             perror("fread products");
             free(products->items);
@@ -208,7 +208,7 @@ int fileio_load_all(
 
         // Ucitavanje dobavljaca
         if (
-            fread(suppliers->items, sizeof(Supplier),scount,f) != scount) {
+            fread(suppliers->items, sizeof(Supplier), scount, f) != scount) {
             perror("fread suppliers");
             free(suppliers->items);
             fclose(f);
@@ -280,10 +280,10 @@ int file_copy(
     while (
 
         // fread vraca broj procitanih byteova
-        (n = fread(buf,1,sizeof(buf),fs)) > 0) {
+        (n = fread(buf, 1, sizeof(buf), fs)) > 0) {
 
         // fwrite zapisuje byteove
-        if (fwrite(buf,1,n,fd) != n) {
+        if (fwrite(buf, 1, n, fd) != n) {
             perror("fwrite");
             fclose(fs);
             fclose(fd);

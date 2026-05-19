@@ -34,12 +34,12 @@ int main(void) {
 
     // Provjera postoji li data.bin
     if (file_exists(DATA_FILE)) {
-long velicina = fileio_get_size(DATA_FILE);
-printf("Ucitana baza podataka ima velicinu od: %ld bajtova.\n", velicina);
+        long velicina = fileio_get_size(DATA_FILE);
+        printf("Ucitana baza podataka ima velicinu od: %ld bajtova.\n", velicina);
 
-      
+
         printf(
-            "Pronasao sam datoteku '%s' "
+            "Pronadjena datoteka '%s' "
             "s prethodnim podacima.\n",
 
             DATA_FILE
