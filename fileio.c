@@ -306,3 +306,18 @@ int file_copy(
 
     return 0;
 }
+
+// Funkcija koja koristi fseek i ftell za racunanje velicine datoteke (Pravilo 20)
+long fileio_get_size(const char* filename) {
+    if (!filename) return -1;
+
+    FILE* f = fopen(filename, "rb");
+    if (!f) return 0; // Datoteka jos ne postoji
+
+    fseek(f, 0, SEEK_END); // Skoci na kraj
+    long size = ftell(f);  // Procitaj poziciju (velicina u bajtovima)
+    rewind(f);             // Vrati na pocetak (isto kao fseek na 0)
+
+    fclose(f);
+    return size;
+}
