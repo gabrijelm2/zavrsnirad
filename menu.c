@@ -2,7 +2,6 @@
   menu.c
   Izbornici i interakcija s korisnikom
 
-  // 7 - Organizacija izvornog koda: menu.c je odvojen modul za sve izbornicke funkcije
   // 10 - Izbornik/podizbornici: ovaj fajl sadrzi glavni menu i sve podmenije
 
   Ovaj fajl sadrzi:
@@ -72,17 +71,17 @@ void main_menu(ProductArray* products,
         // 11 - Enum: switch koristi enum vrijednosti MainOption umjesto golih integera
         switch (opt) {
 
-        // 10 - Podizbornik: OPT_PRODUCTS otvara products podmenu
+            // 10 - Podizbornik: OPT_PRODUCTS otvara products podmenu
         case OPT_PRODUCTS:
             products_menu(products, suppliers);
             break;
 
-        // 10 - Podizbornik: OPT_SUPPLIERS otvara suppliers podmenu
+            // 10 - Podizbornik: OPT_SUPPLIERS otvara suppliers podmenu
         case OPT_SUPPLIERS:
             suppliers_menu(suppliers);
             break;
 
-        // 10 - Podizbornik: OPT_REPORTS otvara reports podmenu
+            // 10 - Podizbornik: OPT_REPORTS otvara reports podmenu
         case OPT_REPORTS:
             reports_menu(products, suppliers);
             break;
@@ -171,7 +170,7 @@ void main_menu(ProductArray* products,
 
             break;
 
-        // 11 - Enum: OPT_EXIT je enum vrijednost za izlaz
+            // 11 - Enum: OPT_EXIT je enum vrijednost za izlaz
         case OPT_EXIT:
             running = 0;
             break;

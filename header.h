@@ -4,9 +4,9 @@
 
   Sadrzi:
   - include biblioteke
-  // 7 - Organizacija izvornog koda: svi tipovi, deklaracije i extern varijable su centralizirani u jednom headeru
   - enum tipove
   - strukture
+
   // 3 - Slozeni tipovi podataka: Product, Supplier, ProductArray, SupplierArray, Config
   - deklaracije funkcija
   - globalne varijable
@@ -87,13 +87,10 @@ typedef enum OrderStatus {
 
     // Narudzba kreirana
     ORDER_PENDING = 0,
-
     // Poslana
     ORDER_SHIPPED,
-
     // Dostavljena
     ORDER_DELIVERED,
-
     // Otkazana
     ORDER_CANCELLED
 

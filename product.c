@@ -2,7 +2,6 @@
   product.c
   CRUD operacije i pomocne funkcije za proizvode
 
-  // 7 - Organizacija izvornog koda: product.c je odvojen modul za sve operacije nad proizvodima
   // 1 - CRUID: ovaj fajl implementira Create (add), Read (find), Update, InsertDelete za proizvode
 */
 
@@ -465,7 +464,7 @@ void product_remove_duplicates(ProductArray* arr) {
 // Rekurzivni binarni search
 // ==========================================
 
-// 24 - Pretra≈æivanje: implementacija binarnog pretrazivanja
+// 24 - Pretraûivanje: implementacija binarnog pretrazivanja
 // 25 - Rekurzija: funkcija poziva samu sebe (rekurzivni algoritam pretrazivanja)
 // 13 - Funkcija: jedan posao - binarno pretrazivanje sortiranog niza po ID-u
 int product_binary_search_recursive(const Product* items, int low, int high, int targetId) {

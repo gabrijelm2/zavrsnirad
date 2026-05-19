@@ -5,7 +5,7 @@
   - provjeru datoteka
   - konfiguraciju programa
 
-  // 7 - Organizacija izvornog koda: utils.c je odvojen modul za pomocne funkcije
+
 */
 
 #include "header.h"   // Ucitavanje zajednickog header fajla

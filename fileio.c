@@ -2,7 +2,7 @@
   fileio.c
   Rad s binarnim datotekama
 
-  // 7 - Organizacija izvornog koda: fileio.c je odvojen modul za sve I/O operacije
+
   // 19 - Datoteke: koristena binarna datoteka (rb/wb mod), provjera FILE* pokazivaca, zatvaranje
 
   Funkcije:

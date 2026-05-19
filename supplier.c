@@ -2,7 +2,6 @@
   supplier.c
   CRUD operacije i pomocne funkcije za dobavljace
 
-  // 7 - Organizacija izvornog koda: supplier.c je odvojen modul za sve operacije nad dobavljacima
   // 1 - CRUID: ovaj fajl implementira Create (add), Read (find), Update, InsertDelete za dobavljace
 */
 

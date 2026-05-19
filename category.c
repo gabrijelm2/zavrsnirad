@@ -1,8 +1,7 @@
 /*
   category.c
   Upravljanje kategorijama proizvoda
-
-  // 7 - Organizacija izvornog koda: category.c je odvojen modul za logiku kategorija
+ 
   // 4 - typedef enum: ProductCategory enum (definiran u headeru) koristi se ovdje
 */
 
@@ -22,7 +21,7 @@ const char* category_get_name(int categoryId) {
     // switch bira tekst prema ID-u kategorije
     switch (categoryId) {
 
-    // 11 - Enum: koriste se simbolicka enum imena umjesto magicnih brojeva
+        // 11 - Enum: koriste se simbolicka enum imena umjesto magicnih brojeva
     case CAT_STAPOVI:
         return "Stapovi";
 
