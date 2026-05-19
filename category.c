@@ -15,24 +15,24 @@ const char* category_get_name(int categoryId) {
     // switch bira tekst prema ID-u kategorije
     switch (categoryId) {
 
-        case CAT_STAPOVI:
-            return "Stapovi";
+    case CAT_STAPOVI:
+        return "Stapovi";
 
-        case CAT_ROLE:
-            return "Role";
+    case CAT_ROLE:
+        return "Role";
 
-        case CAT_NAJLON:
-            return "Najlon";
+    case CAT_NAJLON:
+        return "Najlon";
 
-        case CAT_UDICE:
-            return "Udice";
+    case CAT_UDICE:
+        return "Udice";
 
-        case CAT_HRANA:
-            return "Hrana";
+    case CAT_HRANA:
+        return "Hrana";
 
         // Ako ID nije poznat
-        default:
-            return "Nepoznata";
+    default:
+        return "Nepoznata";
     }
 }
 
@@ -45,7 +45,7 @@ int is_valid_category(int categoryId) {
 
     // Kategorija je validna ako je u rasponu
     return (categoryId >= 0 &&
-            categoryId < CAT_COUNT);
+        categoryId < CAT_COUNT);
 }
 
 

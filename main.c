@@ -55,10 +55,10 @@ int main(void) {
 
             // Ucitavanje iz datoteke
             if (fileio_load_all(
-                    DATA_FILE,
-                    &products,
-                    &suppliers
-                ) != 0)
+                DATA_FILE,
+                &products,
+                &suppliers
+            ) != 0)
 
                 // Greska pri ucitavanju
                 fprintf(
@@ -114,10 +114,10 @@ int main(void) {
 
     // Automatsko spremanje prije izlaza
     if (fileio_save_all(
-            DATA_FILE,
-            &products,
-            &suppliers
-        ) == 0) {
+        DATA_FILE,
+        &products,
+        &suppliers
+    ) == 0) {
 
         // Uspjesno spremanje
         if (globalConfig.verbose)

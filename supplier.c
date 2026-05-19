@@ -188,8 +188,8 @@ Supplier* supplier_find_by_id(SupplierArray* arr, int id) {
 // ==========================================
 
 int supplier_update(SupplierArray* arr,
-                    int id,
-                    const Supplier* s) {
+    int id,
+    const Supplier* s) {
 
     if (!arr || !s)
         return -1;
@@ -246,7 +246,7 @@ int supplier_delete(SupplierArray* arr, int id) {
 
         // Zadnji element prebaci na mjesto obrisanog
         arr->items[idx] =
-            arr->items[arr->size - 1];
+        arr->items[arr->size - 1];
 
     // Smanji broj elemenata
     arr->size--;
@@ -302,7 +302,7 @@ void supplier_print_all(const SupplierArray* arr) {
 // ==========================================
 
 int supplier_generate_test_data(SupplierArray* arr,
-                                size_t n) {
+    size_t n) {
 
     if (!arr)
         return -1;
@@ -362,7 +362,7 @@ int supplier_generate_test_data(SupplierArray* arr,
 // ==========================================
 
 int supplier_compare_by_id(const void* a,
-                           const void* b) {
+    const void* b) {
 
     // Pretvaranje void* u Supplier*
     const Supplier* sa = (const Supplier*)a;
@@ -395,8 +395,8 @@ void supplier_remove_duplicates(SupplierArray* arr) {
 
     // read = citanje elemenata
     for (size_t read = 0;
-         read < arr->size;
-         ++read) {
+        read < arr->size;
+        ++read) {
 
         // Ako je prvi element
         // ili nije duplikat

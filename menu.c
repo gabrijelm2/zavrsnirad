@@ -18,18 +18,18 @@
 
 // lokalni menu za proizvode
 static void products_menu(ProductArray* products,
-                          SupplierArray* suppliers);
+    SupplierArray* suppliers);
 
 // lokalni menu za dobavljace
 static void suppliers_menu(SupplierArray* suppliers);
 
 // menu za izvjestaje
 static void reports_menu(ProductArray* products,
-                          SupplierArray* suppliers);
+    SupplierArray* suppliers);
 
 // comparator za sortiranje po kolicini (desc)
 static int cmp_qty_desc(const void* a,
-                        const void* b);
+    const void* b);
 
 
 // ==========================================
@@ -37,8 +37,8 @@ static int cmp_qty_desc(const void* a,
 // ==========================================
 
 void main_menu(ProductArray* products,
-               SupplierArray* suppliers,
-               const char* dataFile) {
+    SupplierArray* suppliers,
+    const char* dataFile) {
 
     int running = 1;
 
@@ -59,106 +59,106 @@ void main_menu(ProductArray* products,
 
         switch (opt) {
 
-            case OPT_PRODUCTS:
-                products_menu(products, suppliers);
-                break;
+        case OPT_PRODUCTS:
+            products_menu(products, suppliers);
+            break;
 
-            case OPT_SUPPLIERS:
-                suppliers_menu(suppliers);
-                break;
+        case OPT_SUPPLIERS:
+            suppliers_menu(suppliers);
+            break;
 
-            case OPT_REPORTS:
-                reports_menu(products, suppliers);
-                break;
+        case OPT_REPORTS:
+            reports_menu(products, suppliers);
+            break;
 
             // ======================================
             // GENERIRANJE TESTNIH PODATAKA
             // ======================================
-            case OPT_GENERATE_TEST: {
+        case OPT_GENERATE_TEST: {
 
-                int pn = read_int(
-                    "Koliko proizvoda generirati? "
-                );
+            int pn = read_int(
+                "Koliko proizvoda generirati? "
+            );
 
-                int sn = read_int(
-                    "Koliko dobavljaca generirati? "
-                );
+            int sn = read_int(
+                "Koliko dobavljaca generirati? "
+            );
 
-                if (pn > 0) {
+            if (pn > 0) {
 
-                    if (product_generate_test_data(
-                            products,
-                            (size_t)pn
-                        ) == 0)
+                if (product_generate_test_data(
+                    products,
+                    (size_t)pn
+                ) == 0)
 
-                        printf("Proizvodi generirani.\n");
-
-                    else
-                        printf("Greska pri proizvodima.\n");
-                }
-
-                if (sn > 0) {
-
-                    if (supplier_generate_test_data(
-                            suppliers,
-                            (size_t)sn
-                        ) == 0)
-
-                        printf("Dobavljaci generirani.\n");
-
-                    else
-                        printf("Greska pri dobavljacima.\n");
-                }
-
-                break;
-            }
-
-            // ======================================
-            // BACKUP
-            // ======================================
-            case OPT_BACKUP: {
-
-                char dst[256];
-
-                read_string(
-                    "Unesi ime backup datoteke: ",
-                    dst,
-                    sizeof(dst)
-                );
-
-                if (file_copy(dataFile, dst) == 0)
-                    printf("Backup uspjesan.\n");
-                else
-                    printf("Backup neuspjesan.\n");
-
-                break;
-            }
-
-            // ======================================
-            // SPREMANJE
-            // ======================================
-            case OPT_SAVE:
-
-                if (fileio_save_all(
-                        dataFile,
-                        products,
-                        suppliers
-                    ) == 0)
-
-                    printf("Podaci spremljeni.\n");
+                    printf("Proizvodi generirani.\n");
 
                 else
-                    printf("Greska pri spremanju.\n");
+                    printf("Greska pri proizvodima.\n");
+            }
 
-                break;
+            if (sn > 0) {
+
+                if (supplier_generate_test_data(
+                    suppliers,
+                    (size_t)sn
+                ) == 0)
+
+                    printf("Dobavljaci generirani.\n");
+
+                else
+                    printf("Greska pri dobavljacima.\n");
+            }
+
+            break;
+        }
+
+                              // ======================================
+                              // BACKUP
+                              // ======================================
+        case OPT_BACKUP: {
+
+            char dst[256];
+
+            read_string(
+                "Unesi ime backup datoteke: ",
+                dst,
+                sizeof(dst)
+            );
+
+            if (file_copy(dataFile, dst) == 0)
+                printf("Backup uspjesan.\n");
+            else
+                printf("Backup neuspjesan.\n");
+
+            break;
+        }
+
+                       // ======================================
+                       // SPREMANJE
+                       // ======================================
+        case OPT_SAVE:
+
+            if (fileio_save_all(
+                dataFile,
+                products,
+                suppliers
+            ) == 0)
+
+                printf("Podaci spremljeni.\n");
+
+            else
+                printf("Greska pri spremanju.\n");
+
+            break;
 
             // izlaz iz programa
-            case OPT_EXIT:
-                running = 0;
-                break;
+        case OPT_EXIT:
+            running = 0;
+            break;
 
-            default:
-                printf("Nepoznata opcija.\n");
+        default:
+            printf("Nepoznata opcija.\n");
         }
     }
 }
@@ -169,7 +169,7 @@ void main_menu(ProductArray* products,
 // ==========================================
 
 static void products_menu(ProductArray* products,
-                          SupplierArray* suppliers) {
+    SupplierArray* suppliers) {
 
     (void)suppliers;
 
@@ -300,9 +300,9 @@ static void products_menu(ProductArray* products,
         else if (opt == 6) {
 
             qsort(products->items,
-                  products->size,
-                  sizeof(Product),
-                  product_compare_by_name);
+                products->size,
+                sizeof(Product),
+                product_compare_by_name);
 
             printf("Sortirano.\n");
         }
@@ -310,9 +310,9 @@ static void products_menu(ProductArray* products,
         else if (opt == 7) {
 
             qsort(products->items,
-                  products->size,
-                  sizeof(Product),
-                  product_compare_by_id);
+                products->size,
+                sizeof(Product),
+                product_compare_by_id);
 
             printf("Sortirano.\n");
         }
@@ -418,7 +418,7 @@ static void suppliers_menu(SupplierArray* suppliers) {
 // ==========================================
 
 static int cmp_qty_desc(const void* a,
-                        const void* b) {
+    const void* b) {
 
     const Product* pa = a;
     const Product* pb = b;
@@ -429,7 +429,7 @@ static int cmp_qty_desc(const void* a,
 
 // Top 10, zalihe, statistika po dobavljacu itd.
 static void reports_menu(ProductArray* products,
-                         SupplierArray* suppliers) {
+    SupplierArray* suppliers) {
 
     int running = 1;
 
@@ -450,13 +450,13 @@ static void reports_menu(ProductArray* products,
                 malloc(products->size * sizeof(Product));
 
             memcpy(tmp,
-                   products->items,
-                   products->size * sizeof(Product));
+                products->items,
+                products->size * sizeof(Product));
 
             qsort(tmp,
-                  products->size,
-                  sizeof(Product),
-                  cmp_qty_desc);
+                products->size,
+                sizeof(Product),
+                cmp_qty_desc);
 
             size_t limit =
                 products->size < 10 ? products->size : 10;
@@ -488,8 +488,8 @@ static void reports_menu(ProductArray* products,
                         count++;
 
                 printf("%s -> %d proizvoda\n",
-                       suppliers->items[i].name,
-                       count);
+                    suppliers->items[i].name,
+                    count);
             }
         }
 
@@ -498,7 +498,7 @@ static void reports_menu(ProductArray* products,
             for (int c = 0; c < CAT_COUNT; ++c) {
 
                 printf("\n%s:\n",
-                       category_get_name(c));
+                    category_get_name(c));
 
                 for (size_t i = 0; i < products->size; ++i)
                     if (products->items[i].categoryId == c)

@@ -91,7 +91,7 @@ void product_free(ProductArray* arr) {
 // ==========================================
 
 int product_id_exists(const ProductArray* arr,
-                      int id) {
+    int id) {
 
     if (!arr)
         return 0;
@@ -112,7 +112,7 @@ int product_id_exists(const ProductArray* arr,
 // ==========================================
 
 int product_name_exists(const ProductArray* arr,
-                        const char* name) {
+    const char* name) {
 
     if (!arr || !name)
         return 0;
@@ -134,7 +134,7 @@ int product_name_exists(const ProductArray* arr,
 // ==========================================
 
 int product_add(ProductArray* arr,
-                const Product* p) {
+    const Product* p) {
 
     if (!arr || !p)
         return -1;
@@ -167,7 +167,7 @@ int product_add(ProductArray* arr,
 // ==========================================
 
 Product* product_find_by_id(ProductArray* arr,
-                            int id) {
+    int id) {
 
     if (!arr)
         return NULL;
@@ -190,8 +190,8 @@ Product* product_find_by_id(ProductArray* arr,
 // ==========================================
 
 int product_update(ProductArray* arr,
-                   int id,
-                   const Product* p) {
+    int id,
+    const Product* p) {
 
     if (!arr || !p)
         return -1;
@@ -222,7 +222,7 @@ int product_update(ProductArray* arr,
 // ==========================================
 
 int product_delete(ProductArray* arr,
-                   int id) {
+    int id) {
 
     if (!arr)
         return -1;
@@ -249,7 +249,7 @@ int product_delete(ProductArray* arr,
 
         // Zadnji element ide na mjesto obrisanog
         arr->items[idx] =
-            arr->items[arr->size - 1];
+        arr->items[arr->size - 1];
 
     // Smanji broj elemenata
     arr->size--;
@@ -316,7 +316,7 @@ void product_print_all(const ProductArray* arr) {
 // ==========================================
 
 int product_generate_test_data(ProductArray* arr,
-                               size_t n) {
+    size_t n) {
 
     if (!arr)
         return -1;
@@ -385,7 +385,7 @@ int product_generate_test_data(ProductArray* arr,
 // ==========================================
 
 int product_compare_by_id(const void* a,
-                          const void* b) {
+    const void* b) {
 
     // Pretvaranje void* u Product*
     const Product* pa = (const Product*)a;
@@ -401,7 +401,7 @@ int product_compare_by_id(const void* a,
 // ==========================================
 
 int product_compare_by_name(const void* a,
-                            const void* b) {
+    const void* b) {
 
     // Pretvaranje pointera
     const Product* pa = (const Product*)a;
@@ -434,8 +434,8 @@ void product_remove_duplicates(ProductArray* arr) {
 
     // read = citanje elemenata
     for (size_t read = 0;
-         read < arr->size;
-         ++read) {
+        read < arr->size;
+        ++read) {
 
         // Ako nije duplikat
         if (write == 0 ||

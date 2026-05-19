@@ -25,87 +25,51 @@ int fileio_save_all(
     if (!filename || !products || !suppliers)
         return -1;
 
-
     // fopen:
     // wb = write binary
     FILE* f = fopen(filename, "wb");
-
 
     // Ako datoteka nije otvorena
     if (!f) {
 
         // perror ispisuje sistemsku gresku
         perror("fopen za pisanje");
-
         return errno;
     }
-
 
     // ==========================================
     // Spremanje broja proizvoda
     // ==========================================
 
     if (
-        fwrite(
-            &products->size,
-            sizeof(size_t),
-            1,
-            f
-        ) != 1
-    ) {
-
+        fwrite(&products->size,sizeof(size_t),1,f) != 1) {
         perror("fwrite");
-
         fclose(f);
-
         return -1;
     }
-
 
     // ==========================================
     // Spremanje broja dobavljaca
     // ==========================================
 
     if (
-        fwrite(
-            &suppliers->size,
-            sizeof(size_t),
-            1,
-            f
-        ) != 1
-    ) {
-
+        fwrite(&suppliers->size, sizeof(size_t),1,f) != 1) {
         perror("fwrite");
-
         fclose(f);
-
         return -1;
     }
-
 
     // ==========================================
     // Spremanje svih proizvoda
     // ==========================================
 
     if (products->size > 0) {
-
-        if (
-            fwrite(
-                products->items,
-                sizeof(Product),
-                products->size,
-                f
-            ) != products->size
-        ) {
-
+        if (fwrite(products->items,sizeof(Product), products->size,f) != products->size) {
             perror("fwrite products");
-
             fclose(f);
-
             return -1;
         }
     }
-
 
     // ==========================================
     // Spremanje svih dobavljaca
@@ -113,30 +77,17 @@ int fileio_save_all(
 
     if (suppliers->size > 0) {
 
-        if (
-            fwrite(
-                suppliers->items,
-                sizeof(Supplier),
-                suppliers->size,
-                f
-            ) != suppliers->size
-        ) {
-
+        if (fwrite(suppliers->items,sizeof(Supplier),suppliers->size,f) != suppliers->size) {
             perror("fwrite suppliers");
-
             fclose(f);
-
             return -1;
         }
     }
 
-
     // Zatvaranje datoteke
     fclose(f);
-
     return 0;
 }
-
 
 // ==========================================
 // Ucitavanje podataka iz binarne datoteke
@@ -157,67 +108,40 @@ int fileio_load_all(
     // rb = read binary
     FILE* f = fopen(filename, "rb");
 
-
     // Ako otvaranje nije uspjelo
     if (!f) {
-
         perror("fopen za citanje");
-
         return errno;
     }
-
 
     // Broj proizvoda i dobavljaca
     size_t pcount = 0;
     size_t scount = 0;
 
-
     // ==========================================
     // Citanje broja proizvoda
     // ==========================================
 
-    if (
-        fread(
-            &pcount,
-            sizeof(size_t),
-            1,
-            f
-        ) != 1
-    ) {
+    if (fread(&pcount,sizeof(size_t),1,f) != 1) {
 
         // Ako je kraj datoteke
         if (feof(f)) {
-
             fclose(f);
-
             return 0;
         }
-
         perror("fread");
-
         fclose(f);
-
         return -1;
     }
-
 
     // ==========================================
     // Citanje broja dobavljaca
     // ==========================================
 
     if (
-        fread(
-            &scount,
-            sizeof(size_t),
-            1,
-            f
-        ) != 1
-    ) {
-
+        fread(&scount,sizeof(size_t),1,f) != 1) {
         perror("fread");
-
         fclose(f);
-
         return -1;
     }
 
@@ -238,38 +162,23 @@ int fileio_load_all(
 
         // Alokacija memorije
         products->items =
-            (Product*)malloc(
-                pcount * sizeof(Product)
-            );
+            (Product*)malloc(pcount * sizeof(Product));
 
         // Ako malloc nije uspio
         if (!products->items) {
-
             fclose(f);
-
             return -1;
         }
-
 
         // Ucitavanje proizvoda iz datoteke
         if (
-            fread(
-                products->items,
-                sizeof(Product),
-                pcount,
-                f
-            ) != pcount
-        ) {
+            fread(products->items,sizeof(Product),pcount,f) != pcount) {
 
             perror("fread products");
-
             free(products->items);
-
             fclose(f);
-
             return -1;
         }
-
 
         // Postavljanje velicine niza
         products->size = pcount;
@@ -277,7 +186,6 @@ int fileio_load_all(
         // Postavljanje kapaciteta
         products->capacity = pcount;
     }
-
 
     // ==========================================
     // Ucitavanje dobavljaca
@@ -295,30 +203,17 @@ int fileio_load_all(
         if (!suppliers->items) {
 
             fclose(f);
-
             return -1;
         }
-
 
         // Ucitavanje dobavljaca
         if (
-            fread(
-                suppliers->items,
-                sizeof(Supplier),
-                scount,
-                f
-            ) != scount
-        ) {
-
+            fread(suppliers->items, sizeof(Supplier),scount,f) != scount) {
             perror("fread suppliers");
-
             free(suppliers->items);
-
             fclose(f);
-
             return -1;
         }
-
 
         // Postavljanje velicine
         suppliers->size = scount;
@@ -327,23 +222,16 @@ int fileio_load_all(
         suppliers->capacity = scount;
     }
 
-
     // Zatvaranje datoteke
     fclose(f);
-
 
     // ==========================================
     // Uklanjanje mogucih duplikata
     // ==========================================
-
     product_remove_duplicates(products);
-
     supplier_remove_duplicates(suppliers);
-
-
     return 0;
 }
-
 
 // ==========================================
 // Kopiranje datoteke
@@ -358,16 +246,12 @@ int file_copy(
     if (!src || !dst)
         return -1;
 
-
     // Otvaranje source datoteke
     FILE* fs = fopen(src, "rb");
 
-
     // Ako source nije otvoren
     if (!fs) {
-
         perror("fopen src");
-
         return errno;
     }
 
@@ -375,17 +259,12 @@ int file_copy(
     // Otvaranje destination datoteke
     FILE* fd = fopen(dst, "wb");
 
-
     // Ako destination nije otvoren
     if (!fd) {
-
         perror("fopen dst");
-
         fclose(fs);
-
         return errno;
     }
-
 
     // Buffer za kopiranje podataka
     char buf[4096];
@@ -401,29 +280,13 @@ int file_copy(
     while (
 
         // fread vraca broj procitanih byteova
-        (n = fread(
-                buf,
-                1,
-                sizeof(buf),
-                fs
-            )) > 0
-    ) {
+        (n = fread(buf,1,sizeof(buf),fs)) > 0) {
 
         // fwrite zapisuje byteove
-        if (
-            fwrite(
-                buf,
-                1,
-                n,
-                fd
-            ) != n
-        ) {
-
+        if (fwrite(buf,1,n,fd) != n) {
             perror("fwrite");
-
             fclose(fs);
             fclose(fd);
-
             return -1;
         }
     }
@@ -431,16 +294,12 @@ int file_copy(
 
     // Provjera greske pri citanju
     if (ferror(fs)) {
-
         perror("fread");
-
         fclose(fs);
         fclose(fd);
 
         return -1;
     }
-
-
     // Zatvaranje datoteka
     fclose(fs);
     fclose(fd);
