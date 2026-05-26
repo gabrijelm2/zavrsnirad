@@ -2,10 +2,10 @@
 
 const char* category_get_name(int categoryId) {
 
-   
+
     switch (categoryId) {
 
-     
+
     case CAT_STAPOVI:
         return "Stapovi";
 
@@ -21,7 +21,7 @@ const char* category_get_name(int categoryId) {
     case CAT_HRANA:
         return "Hrana";
 
-        
+
     default:
         return "Nepoznata";
     }
@@ -29,7 +29,7 @@ const char* category_get_name(int categoryId) {
 
 int is_valid_category(int categoryId) {
 
-   
+
     return (categoryId >= 0 &&
         categoryId < CAT_COUNT);
 }
@@ -39,6 +39,6 @@ void print_all_categories(void) {
     printf("\nDostupne kategorije:\n");
 
     for (int i = 0; i < CAT_COUNT; ++i) {
-        printf("%d. %s\n",i, category_get_name(i));
+        printf("%d. %s\n", i, category_get_name(i));
     }
 }

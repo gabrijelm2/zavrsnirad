@@ -1,59 +1,20 @@
-/*
-  menu.c
-  Izbornici i interakcija s korisnikom
-
-  // 10 - Izbornik/podizbornici: ovaj fajl sadrzi glavni menu i sve podmenije
-
-  Ovaj fajl sadrzi:
-  - glavni menu
-  - podmenu za proizvode
-  - podmenu za dobavljace
-  - report menu
-*/
-
 #include "header.h"
 
-
-// ==========================================
-// PROTOTIPI STATIC FUNKCIJA
-// ==========================================
-
-// 6 - static: funkcije su vidljive samo unutar menu.c (interni podmenii)
-// 13 - Svaki menu je odvojena funkcija koja radi jedan logicki posao
-
-// lokalni menu za proizvode
 static void products_menu(ProductArray* products,
     SupplierArray* suppliers);
 
-// lokalni menu za dobavljace
 static void suppliers_menu(SupplierArray* suppliers);
-
-// menu za izvjestaje
 static void reports_menu(ProductArray* products,
     SupplierArray* suppliers);
-
-// comparator za sortiranje po kolicini (desc)
-// 23 - Sortiranje: comparator za qsort u reports_menu
-// 26 - Pokazivac na funkciju: prosljedjuje se qsortu
 static int cmp_qty_desc(const void* a,
     const void* b);
 
-
-// ==========================================
-// GLAVNI MENU
-// ==========================================
-
-// 10 - Izbornik: implementacija glavnog izbornika programa
-// 11 - Enum tipovi: switch koristi MainOption enum vrijednosti (OPT_PRODUCTS, OPT_EXIT, ...)
-// 13 - Funkcija: main_menu je ulazna tocka za korisnicku interakciju
-// 14 - Zastita: svi pointeri prosljedjeni dalje u pod-funkcije koje ih provjeravaju
 void main_menu(ProductArray* products,
     SupplierArray* suppliers,
     const char* dataFile) {
 
     int running = 1;
 
-    // Glavna petlja programa
     while (running) {
 
         printf("\n=== Skladiste ribolovne opreme ===\n");
@@ -65,30 +26,23 @@ void main_menu(ProductArray* products,
         printf("9. Spremi podatke\n");
         printf("0. Izlaz\n");
 
-        // 13 - Citanje korisnickog odabira kroz pomocnu funkciju
         int opt = read_int("Odaberi opciju: ");
-
-        // 11 - Enum: switch koristi enum vrijednosti MainOption umjesto golih integera
         switch (opt) {
 
-            // 10 - Podizbornik: OPT_PRODUCTS otvara products podmenu
+  
         case OPT_PRODUCTS:
             products_menu(products, suppliers);
             break;
 
-            // 10 - Podizbornik: OPT_SUPPLIERS otvara suppliers podmenu
+      
         case OPT_SUPPLIERS:
             suppliers_menu(suppliers);
             break;
 
-            // 10 - Podizbornik: OPT_REPORTS otvara reports podmenu
         case OPT_REPORTS:
             reports_menu(products, suppliers);
             break;
 
-            // ======================================
-            // GENERIRANJE TESTNIH PODATAKA
-            // ======================================
         case OPT_GENERATE_TEST: {
 
             int pn = read_int(
@@ -128,12 +82,8 @@ void main_menu(ProductArray* products,
             break;
         }
 
-                              // ======================================
-                              // BACKUP
-                              // ======================================
         case OPT_BACKUP: {
 
-            // 15 - Staticko polje fiksne velicine za ime backup datoteke
             char dst[256];
 
             read_string(
@@ -142,7 +92,6 @@ void main_menu(ProductArray* products,
                 sizeof(dst)
             );
 
-            // 21 - file_copy: kopiranje datoteke (implementacija kopiranja)
             if (file_copy(dataFile, dst) == 0)
                 printf("Backup uspjesan.\n");
             else
@@ -151,12 +100,8 @@ void main_menu(ProductArray* products,
             break;
         }
 
-                       // ======================================
-                       // SPREMANJE
-                       // ======================================
         case OPT_SAVE:
 
-            // 19 - Datoteke: spremanje podataka u binarnu datoteku
             if (fileio_save_all(
                 dataFile,
                 products,
@@ -169,8 +114,6 @@ void main_menu(ProductArray* products,
                 printf("Greska pri spremanju.\n");
 
             break;
-
-            // 11 - Enum: OPT_EXIT je enum vrijednost za izlaz
         case OPT_EXIT:
             running = 0;
             break;
@@ -180,15 +123,6 @@ void main_menu(ProductArray* products,
         }
     }
 }
-
-
-// ==========================================
-// MENU ZA PROIZVODE
-// ==========================================
-
-// 6 - static: products_menu vidljiva samo unutar menu.c
-// 10 - Podizbornik za upravljanje proizvodima
-// 13 - Funkcija: sve CRUD operacije nad proizvodima kroz jedan podmenu
 static void products_menu(ProductArray* products,
     SupplierArray* suppliers) {
 
@@ -211,13 +145,9 @@ static void products_menu(ProductArray* products,
         int opt = read_int("Opcija: ");
 
         if (opt == 1) {
-
-            // 3 - Slozeni tip: lokalna Product struktura
             Product p = { 0 };
 
             p.id = read_int("ID: ");
-
-            // 14 - Provjera: ne dopusti duplikat ID-a
             if (product_id_exists(products, p.id)) {
                 printf("ID vec postoji.\n");
                 continue;
@@ -225,30 +155,22 @@ static void products_menu(ProductArray* products,
 
             read_string("Naziv: ", p.name, sizeof(p.name));
 
-            // 14 - Provjera: ne dopusti duplikat naziva
             if (product_name_exists(products, p.name)) {
                 printf("Naziv vec postoji.\n");
                 continue;
             }
-
-            // 10 - Ispis kategorija kao dio interakcije izbornika
             print_all_categories();
 
             int cat = read_int("Kategorija: ");
-
-            // 14 - Validacija: provjera ispravnosti kategorije
             if (!is_valid_category(cat)) {
                 printf("Neispravna kategorija.\n");
                 continue;
             }
 
             p.categoryId = cat;
-            // 2 - double: cijena je realni broj
             p.price = read_double("Cijena: ");
             p.quantity = read_int("Kolicina: ");
             p.supplierId = read_int("ID dobavljaca: ");
-
-            // 1 - CRUID - Create: dodavanje novog proizvoda
             int rc = product_add(products, &p);
 
             if (rc == 0)
@@ -258,16 +180,12 @@ static void products_menu(ProductArray* products,
         }
 
         else if (opt == 2) {
-            // 1 - CRUID - Read: prikaz svih proizvoda
             product_print_all(products);
         }
 
         else if (opt == 3) {
 
             int id = read_int("ID: ");
-
-            // 1 - CRUID - Read: pretraga po ID-u
-            // 12 - Pokazivac: product_find_by_id vraca pointer
             Product* p =
                 product_find_by_id(products, id);
 
@@ -280,8 +198,6 @@ static void products_menu(ProductArray* products,
         else if (opt == 4) {
 
             int id = read_int("ID za izmjenu: ");
-
-            // 12 - Pokazivac: dohvacamo direktnu referencu na element
             Product* p =
                 product_find_by_id(products, id);
 
@@ -289,11 +205,7 @@ static void products_menu(ProductArray* products,
                 printf("Ne postoji.\n");
                 continue;
             }
-
-            // Kopija za uredivanje
             Product tmp = *p;
-
-            // 15 - Staticko polje fiksne velicine za privremeni unos
             char buf[128];
 
             read_string(
@@ -309,7 +221,6 @@ static void products_menu(ProductArray* products,
             if (newcat >= 0)
                 tmp.categoryId = newcat;
 
-            // 2 - double: cijena kao realni tip
             double newprice = read_double("Nova cijena (0 skip): ");
             if (newprice > 0)
                 tmp.price = newprice;
@@ -322,22 +233,16 @@ static void products_menu(ProductArray* products,
             if (newsup >= 0)
                 tmp.supplierId = newsup;
 
-            // 1 - CRUID - Update: azuriranje podataka proizvoda
             product_update(products, id, &tmp);
         }
 
         else if (opt == 5) {
 
             int id = read_int("ID za brisanje: ");
-
-            // 1 - CRUID - InsertDelete: brisanje proizvoda
             product_delete(products, id);
         }
 
         else if (opt == 6) {
-
-            // 23 - Sortiranje: qsort s comparatorom po nazivu
-            // 26 - Pokazivac na funkciju: product_compare_by_name prosljedjen qsortu
             qsort(products->items,
                 products->size,
                 sizeof(Product),
@@ -347,9 +252,6 @@ static void products_menu(ProductArray* products,
         }
 
         else if (opt == 7) {
-
-            // 23 - Sortiranje: qsort s comparatorom po ID-u
-            // 26 - Pokazivac na funkciju: product_compare_by_id prosljedjen qsortu
             qsort(products->items,
                 products->size,
                 sizeof(Product),
@@ -367,15 +269,6 @@ static void products_menu(ProductArray* products,
         }
     }
 }
-
-
-// ==========================================
-// MENU ZA DOBAVLJACE
-// ==========================================
-
-// 6 - static: suppliers_menu vidljiva samo unutar menu.c
-// 10 - Podizbornik za upravljanje dobavljacima
-// 1 - CRUID: sve operacije nad dobavljacima dostupne kroz ovaj podmenu
 static void suppliers_menu(SupplierArray* suppliers) {
 
     int running = 1;
@@ -393,29 +286,21 @@ static void suppliers_menu(SupplierArray* suppliers) {
         int opt = read_int("Opcija: ");
 
         if (opt == 1) {
-
-            // 3 - Slozeni tip: lokalna Supplier struktura
             Supplier s = { 0 };
 
             s.id = read_int("ID: ");
             read_string("Naziv: ", s.name, sizeof(s.name));
             read_string("Kontakt: ", s.contact, sizeof(s.contact));
-
-            // 1 - CRUID - Create
             supplier_add(suppliers, &s);
         }
 
         else if (opt == 2) {
-            // 1 - CRUID - Read: ispis svih
             supplier_print_all(suppliers);
         }
 
         else if (opt == 3) {
 
             int id = read_int("ID: ");
-
-            // 1 - CRUID - Read: pretraga po ID-u
-            // 12 - Pokazivac: supplier_find_by_id vraca pointer
             Supplier* s =
                 supplier_find_by_id(suppliers, id);
 
@@ -426,16 +311,12 @@ static void suppliers_menu(SupplierArray* suppliers) {
         else if (opt == 4) {
 
             int id = read_int("ID za izmjenu: ");
-
-            // 12 - Pokazivac: direktna referenca na element
             Supplier* s =
                 supplier_find_by_id(suppliers, id);
 
             if (!s) continue;
 
             Supplier tmp = *s;
-
-            // 15 - Staticko polje fiksne velicine
             char buf[128];
 
             read_string("Novi naziv: ", buf, sizeof(buf));
@@ -445,8 +326,6 @@ static void suppliers_menu(SupplierArray* suppliers) {
             read_string("Novi kontakt: ", buf, sizeof(buf));
             if (strlen(buf) > 0)
                 strncpy(tmp.contact, buf, sizeof(tmp.contact) - 1);
-
-            // 1 - CRUID - Update
             supplier_update(suppliers, id, &tmp);
         }
 
@@ -454,7 +333,6 @@ static void suppliers_menu(SupplierArray* suppliers) {
 
             int id = read_int("ID za brisanje: ");
 
-            // 1 - CRUID - InsertDelete
             supplier_delete(suppliers, id);
         }
 
@@ -464,28 +342,15 @@ static void suppliers_menu(SupplierArray* suppliers) {
     }
 }
 
-
-// ==========================================
-// REPORTS MENU
-// ==========================================
-
-// 23 - Sortiranje: comparator za sortiranje po kolicini silazno
-// 26 - Pokazivac na funkciju: prosljedjuje se qsortu kao callback
-// 6 - static: vidljivo samo unutar menu.c
 static int cmp_qty_desc(const void* a,
     const void* b) {
 
-    // 12 - Pokazivaci: void* pretvoreni u Product*
     const Product* pa = a;
     const Product* pb = b;
 
     return pb->quantity - pa->quantity;
 }
 
-
-// 6 - static: reports_menu vidljiva samo unutar menu.c
-// 10 - Podizbornik za izvjestaje
-// 13 - Funkcija: generira razlicite izvjestaje o skladistu
 static void reports_menu(ProductArray* products,
     SupplierArray* suppliers) {
 
@@ -504,17 +369,12 @@ static void reports_menu(ProductArray* products,
 
         if (opt == 1) {
 
-            // 16 - Dinamicko zauzimanje memorije: privremena kopija niza za sortiranje
-            // 17 - malloc: alociranje memorije za privremeni niz
             Product* tmp =
                 malloc(products->size * sizeof(Product));
 
             memcpy(tmp,
                 products->items,
                 products->size * sizeof(Product));
-
-            // 23 - Sortiranje: qsort s comparatorom po kolicini
-            // 26 - Pokazivac na funkciju: cmp_qty_desc prosljedjen qsortu
             qsort(tmp,
                 products->size,
                 sizeof(Product),
@@ -525,9 +385,6 @@ static void reports_menu(ProductArray* products,
 
             for (size_t i = 0; i < limit; ++i)
                 product_print(&tmp[i]);
-
-            // 17 - free: oslobadjanje privremene memorije
-            // 18 - Oslobadjanje odmah nakon upotrebe (nema dangling pointera - tmp je lokalan)
             free(tmp);
         }
 
@@ -559,7 +416,6 @@ static void reports_menu(ProductArray* products,
 
         else if (opt == 4) {
 
-            // 11 - Enum: CAT_COUNT za petlju kroz sve kategorije
             for (int c = 0; c < CAT_COUNT; ++c) {
 
                 printf("\n%s:\n",
