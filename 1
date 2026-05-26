@@ -814,3 +814,61 @@ int  s_ime_postoji(const SupplierArray* a, const char* ime);
 int  obnovi_datoteku_na_disku(const char* fn, const ProductArray* pa, const SupplierArray* sa);
 
 #endif
+
+
+
+
+
+
+
+
+else if (odabir == OPT_CSV_EXPORT) {
+    if (export_csv("skladiste.csv", &pNiz) == 0)
+        printf("CSV izvoz uspjesan! (skladiste.csv)\n");
+    else
+        printf("Greska pri izvozu u CSV!\n");
+}
+
+
+
+
+
+
+
+
+
+int export_csv(const char* fn, const ProductArray* pa);
+
+
+
+
+
+
+
+
+int export_csv(const char* fn, const ProductArray* pa) {
+    if (!fn || !pa) return -1;
+
+    FILE* f = fopen(fn, "w");
+    if (!f) {
+        perror("Greska otvaranja CSV datoteke");
+        return -1;
+    }
+
+    // Header
+    fprintf(f, "ID,Ime,Kategorija,Cijena,Kolicina,DobavljacID\n");
+
+    for (size_t i = 0; i < pa->size; i++) {
+        fprintf(f, "%d,%s,%d,%.2f,%d,%d\n",
+            pa->items[i].id,
+            pa->items[i].ime,
+            pa->items[i].kategorijaId,
+            pa->items[i].cijena,
+            pa->items[i].kolicina,
+            pa->items[i].dobavljacId
+        );
+    }
+
+    fclose(f);
+    return 0;
+}
