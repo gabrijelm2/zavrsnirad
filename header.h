@@ -1,251 +1,94 @@
 #ifndef HEADER_H
 #define HEADER_H
+
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
 
-typedef enum ProductCategory {
-
+typedef enum {
     CAT_STAPOVI = 0,
     CAT_ROLE,
     CAT_NAJLON,
-    CAT_UDICE,
-    CAT_HRANA,
     CAT_COUNT
-
 } ProductCategory;
 
-typedef enum OrderStatus {
-    ORDER_PENDING = 0,
-    ORDER_SHIPPED,
-    ORDER_DELIVERED,
-    ORDER_CANCELLED
+typedef enum {
+    OPT_IZLAZ = 0,
+    OPT_DODAJ_P,
+    OPT_ISPISI_P,
+    OPT_AZURIRAJ_P,
+    OPT_OBRISI_P,
+    OPT_DODAJ_D,
+    OPT_TRAZI_P,
+    OPT_SORT_P,
+    OPT_BACKUP,
+    OPT_CSV_EXPORT
+} MenuOption;
 
-} OrderStatus;
-
-typedef enum MainOption {
-    OPT_EXIT = 0,
-    OPT_PRODUCTS = 1,
-    OPT_SUPPLIERS = 2,
-    OPT_REPORTS = 3,
-    OPT_GENERATE_TEST = 4,
-    OPT_BACKUP = 8,
-    OPT_SAVE = 9
-
-} MainOption;
-
-typedef struct Product {
+typedef struct {
     int id;
-    char name[64];
-    int categoryId;
-    double price;
-    int quantity;
-    int supplierId;
-
+    char ime[50];
+    int kategorijaId;
+    double cijena;
+    int kolicina;
+    int dobavljacId;
 } Product;
 
-typedef struct Supplier {
+typedef struct {
     int id;
-    char name[64];
-    char contact[64];
-
+    char ime[50];
+    char kontakt[50];
 } Supplier;
 
-
-
-typedef struct ProductArray {
+typedef struct {
     Product* items;
     size_t size;
     size_t capacity;
 } ProductArray;
 
-typedef struct SupplierArray {
-
-
+typedef struct {
     Supplier* items;
-
     size_t size;
-
     size_t capacity;
-
 } SupplierArray;
 
-typedef struct Config {
-
+typedef struct {
     int verbose;
-
 } Config;
 
-extern Config globalConfig;
+extern Config globalnaKonfiguracija;
 
-void init_utils(void);
+#define JE_VALJANA_KAT(id) ((id) >= 0 && (id) < CAT_COUNT)
 
+void p_init(ProductArray* a);
+void p_free(ProductArray* a);
+int  p_add(ProductArray* a, const Product* p);
 
-void cleanup_utils(void);
+void s_init(SupplierArray* a);
+void s_free(SupplierArray* a);
+int  s_add(SupplierArray* a, const Supplier* s);
 
-int read_int(const char* prompt);
+int  spasi_sve(const char* fn, const ProductArray* pa, const SupplierArray* sa);
+int  ucitaj_sve(const char* fn, ProductArray* pa, SupplierArray* sa);
+int  kopiraj_datoteku(const char* src, const char* dst);
+int  datoteka_postoji(const char* fn);
+long dohvati_velicinu_datoteke(const char* fn);
 
-double read_double(const char* prompt);
+int  p_search_rekurzivni(const Product* artikli, int niski, int visoki, int trazeniId);
+int  usporedi_proizvode(const void* a, const void* b);
 
-void read_string(
-    const char* prompt,
-    char* buf,
-    size_t bufsize
-);
+int  p_id_postoji(const ProductArray* a, int id);
+int  p_ime_postoji(const ProductArray* a, const char* ime);
+int  s_id_postoji(const SupplierArray* a, int id);
+int  s_ime_postoji(const SupplierArray* a, const char* ime);
 
+int  obnovi_datoteku_na_disku(const char* fn, const ProductArray* pa, const SupplierArray* sa);
 
-int file_exists(const char* filename);
-
-const char* category_get_name(int categoryId);
-
-
-int is_valid_category(int categoryId);
-
-void print_all_categories(void);
-
-void product_init(ProductArray* arr);
-void product_free(ProductArray* arr);
-
-int product_add(
-    ProductArray* arr,
-    const Product* p
-);
-
-Product* product_find_by_id(
-    ProductArray* arr,
-    int id
-);
-
-int product_update(
-    ProductArray* arr,
-    int id,
-    const Product* p
-);
-
-int product_delete(
-    ProductArray* arr,
-    int id
-);
-
-void product_print(const Product* p);
-void product_print_all(
-    const ProductArray* arr
-);
-
-int product_generate_test_data(
-    ProductArray* arr,
-    size_t n
-);
-
-int product_compare_by_id(
-    const void* a,
-    const void* b
-);
-
-int product_compare_by_name(
-    const void* a,
-    const void* b
-);
-
-int product_id_exists(
-    const ProductArray* arr,
-    int id
-);
-
-int product_name_exists(
-    const ProductArray* arr,
-    const char* name
-);
-
-void product_remove_duplicates(
-    ProductArray* arr
-);
-
-
-void supplier_init(SupplierArray* arr);
-void supplier_free(SupplierArray* arr);
-
-int supplier_add(
-    SupplierArray* arr,
-    const Supplier* s
-);
-
-
-Supplier* supplier_find_by_id(
-    SupplierArray* arr,
-    int id
-);
-
-int supplier_update(
-    SupplierArray* arr,
-    int id,
-    const Supplier* s
-);
-
-int supplier_delete(
-    SupplierArray* arr,
-    int id
-);
-
-void supplier_print(const Supplier* s);
-void supplier_print_all(
-    const SupplierArray* arr
-);
-
-int supplier_generate_test_data(
-    SupplierArray* arr,
-    size_t n
-);
-
-int supplier_compare_by_id(
-    const void* a,
-    const void* b
-);
-
-int supplier_id_exists(
-    const SupplierArray* arr,
-    int id
-);
-
-int supplier_name_exists(
-    const SupplierArray* arr,
-    const char* name
-);
-
-void supplier_remove_duplicates(
-    SupplierArray* arr
-);
-
-
-int fileio_save_all(
-    const char* filename,
-    const ProductArray* products,
-    const SupplierArray* suppliers
-);
-
-int fileio_load_all(
-    const char* filename,
-    ProductArray* products,
-    SupplierArray* suppliers
-);
-
-
-int file_copy(
-    const char* src,
-    const char* dst
-);
-
-long fileio_get_size(const char* filename);
-
-void main_menu(
-    ProductArray* products,
-    SupplierArray* suppliers,
-    const char* dataFile
-);
-
+int  export_csv(const char* fn, const ProductArray* pa);
 
 #endif
