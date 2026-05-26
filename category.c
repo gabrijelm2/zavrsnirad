@@ -1,7 +1,5 @@
 #include "header.h"
 
-
-
 const char* category_get_name(int categoryId) {
 
    
