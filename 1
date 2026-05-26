@@ -1,0 +1,256 @@
+#include "header.h"
+
+static void unesi_tekst(const char* p, char* b, size_t s) {
+    printf("%s", p); fgets(b, (int)s, stdin); b[strcspn(b, "\n")] = '\0';
+}
+
+int main(void) {
+    ProductArray pNiz; SupplierArray sNiz;
+    p_init(&pNiz); s_init(&sNiz);
+    const char* BAZA = "skladiste.bin";
+    
+    if (datoteka_postoji(BAZA)) {
+        printf("Velicina ucitane baze: %ld bajtova.\n", dohvati_velicinu_datoteke(BAZA));
+        ucitaj_sve(BAZA, &pNiz, &sNiz);
+    }
+
+    char unosBuffer[128]; int odabir = -1;
+
+    while (odabir != OPT_IZLAZ) {
+        printf("\n1.DodajP 2.IspisiP 3.AzurirajP 4.ObrisiP 5.DodajD 6.TraziP 7.SortP 8.Backup 0.Izlaz\nOdabir: ");
+        if (!fgets(unosBuffer, sizeof(unosBuffer), stdin) || sscanf(unosBuffer, "%d", &odabir) != 1) continue;
+
+        if (odabir == OPT_DODAJ_P) {
+            Product p; printf("ID, Cijena, Kolicina: ");
+            if(fgets(unosBuffer, sizeof(unosBuffer), stdin)) {
+                sscanf(unosBuffer, "%d %lf %d", &p.id, &p.cijena, &p.kolicina);
+                unesi_tekst("Ime proizvoda: ", p.ime, sizeof(p.ime));
+                p.kategorijaId = CAT_ROLE; p.dobavljacId = 1; p_add(&pNiz, &p);
+            }
+        } 
+        else if (odabir == OPT_ISPISI_P) {
+            for (size_t i = 0; i < pNiz.size; i++)
+                printf("ID: %d | %s | Kol: %d | Cijena: %.2f EUR\n", pNiz.items[i].id, pNiz.items[i].ime, pNiz.items[i].kolicina, pNiz.items[i].cijena);
+        }
+        else if (odabir == OPT_AZURIRAJ_P) { // CRUD - Update (Tocka 1)
+            int id; printf("Unesi ID za izmjenu: ");
+            if(fgets(unosBuffer, sizeof(unosBuffer), stdin) && sscanf(unosBuffer, "%d", &id) == 1) {
+                int idx = p_search_rekurzivni(pNiz.items, 0, (int)pNiz.size - 1, id);
+                if(idx != -1) {
+                    printf("Nova cijena i kolicina: ");
+                    if(fgets(unosBuffer, sizeof(unosBuffer), stdin)) {
+                        sscanf(unosBuffer, "%lf %d", &pNiz.items[idx].cijena, &pNiz.items[idx].kolicina);
+                        printf("Podaci azurirani!\n");
+                    }
+                } else printf("Proizvod nije pronaden!\n");
+            }
+        }
+        else if (odabir == OPT_OBRISI_P) { // CRUD - Delete (Tocka 1)
+            int id; printf("Unesi ID za brisanje: ");
+            if(fgets(unosBuffer, sizeof(unosBuffer), stdin) && sscanf(unosBuffer, "%d", &id) == 1) {
+                int idx = p_search_rekurzivni(pNiz.items, 0, (int)pNiz.size - 1, id);
+                if(idx != -1) {
+                    for(size_t i = idx; i < pNiz.size - 1; i++) pNiz.items[i] = pNiz.items[i+1];
+                    pNiz.size--; printf("Proizvod obrisan!\n");
+                } else printf("Proizvod nije pronaden!\n");
+            }
+        }
+        else if (odabir == OPT_DODAJ_D) {
+            Supplier s; printf("ID dobavljaca: ");
+            if(fgets(unosBuffer, sizeof(unosBuffer), stdin) && sscanf(unosBuffer, "%d", &s.id) == 1) {
+                unesi_tekst("Ime dobavljaca: ", s.ime, sizeof(s.ime));
+                s.contact[0] = '\0'; s_add(&sNiz, &s);
+            }
+        } 
+        else if (odabir == OPT_TRAZI_P) {
+            int traziId; printf("Unesi ID za rekurzivnu pretragu: ");
+            if(fgets(unosBuffer, sizeof(unosBuffer), stdin) && sscanf(unosBuffer, "%d", &traziId) == 1) {
+                int idx = p_search_rekurzivni(pNiz.items, 0, (int)pNiz.size - 1, traziId);
+                if(idx != -1) printf("Pronaden: %s\n", pNiz.items[idx].ime);
+                else printf("Nije pronaden! (Niz mora biti sortiran)\n");
+            }
+        } 
+        else if (odabir == OPT_SORT_P) {
+            if(pNiz.size > 0) {
+                qsort(pNiz.items, pNiz.size, sizeof(Product), usporedi_proizvode);
+                printf("Niz je sortiran po ID-u!\n");
+            }
+        } 
+        else if (odabir == OPT_BACKUP) {
+            if (kopiraj_datoteku(BAZA, "backup.bin") == 0) printf("Backup uspjesan!\n");
+        }
+    }
+
+    spasi_sve(BAZA, &pNiz, &sNiz); p_free(&pNiz); s_free(&sNiz);
+    return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#include "header.h"
+
+Config globalnaKonfiguracija = { .verbose = 1 };
+
+// Dinamicko prosirenje (Tocka 17)
+static int prosiri_p(ProductArray* a) {
+    size_t nc = a->capacity ? a->capacity * 2 : 4;
+    Product* tmp = (Product*)realloc(a->items, nc * sizeof(Product));
+    if (!tmp) return -1;
+    a->items = tmp; a->capacity = nc; return 0;
+}
+
+static int prosiri_s(SupplierArray* a) {
+    size_t nc = a->capacity ? a->capacity * 2 : 4;
+    Supplier* tmp = (Supplier*)realloc(a->items, nc * sizeof(Supplier));
+    if (!tmp) return -1;
+    a->items = tmp; a->capacity = nc; return 0;
+}
+
+void p_init(ProductArray* a) { if(a) { a->items = NULL; a->size = a->capacity = 0; } }
+void s_init(SupplierArray* a) { if(a) { a->items = NULL; a->size = a->capacity = 0; } }
+
+// Sigurno oslobadjanje resursa (Tocka 18)
+void p_free(ProductArray* a) { if(a) { free(a->items); a->items = NULL; a->size = a->capacity = 0; } }
+void s_free(SupplierArray* a) { if(a) { free(a->items); a->items = NULL; a->size = a->capacity = 0; } }
+
+// CRUD - Create (Tocka 1)
+int p_add(ProductArray* a, const Product* p) {
+    if (!a || !p || !JE_VALJANA_KAT(p->kategorijaId)) return -1;
+    if (a->size >= a->capacity && prosiri_p(a) != 0) return -1;
+    a->items[a->size++] = *p; return 0;
+}
+
+int s_add(SupplierArray* a, const Supplier* s) {
+    if (!a || !s) return -1;
+    if (a->size >= a->capacity && prosiri_s(a) != 0) return -1;
+    a->items[a->size++] = *s; return 0;
+}
+
+// Rekurzivni binarni search (Tocke 24, 25)
+int p_search_rekurzivni(const Product* artikli, int niski, int visoki, int trazeniId) {
+    if (niski > visoki) return -1;
+    int sredina = niski + (visoki - niski) / 2;
+    if (artikli[sredina].id == trazeniId) return sredina;
+    return (artikli[sredina].id > trazeniId) ? 
+        p_search_rekurzivni(artikli, niski, sredina - 1, trazeniId) : 
+        p_search_rekurzivni(artikli, sredina + 1, visoki, trazeniId);
+}
+
+// Pokazivac na funkciju za qsort (Tocka 26)
+int usporedi_proizvode(const void* a, const void* b) {
+    return (((const Product*)a)->id - ((const Product*)b)->id);
+}
+
+// Datoteke i provjera velicine (Tocke 19, 20, 22)
+int datoteka_postoji(const char* fn) {
+    FILE* f = fopen(fn, "rb"); if (!f) return 0; fclose(f); return 1;
+}
+
+long dohvati_velicinu_datoteke(const char* fn) {
+    FILE* f = fopen(fn, "rb"); if (!f) return -1;
+    fseek(f, 0, SEEK_END); long sz = ftell(f); rewind(f);
+    fclose(f); return sz;
+}
+
+int spasi_sve(const char* fn, const ProductArray* pa, const SupplierArray* sa) {
+    if (!fn || !pa || !sa) return -1;
+    FILE* f = fopen(fn, "wb"); if (!f) { perror("Greska datoteke"); return errno; }
+    fwrite(&pa->size, sizeof(size_t), 1, f);
+    fwrite(&sa->size, sizeof(size_t), 1, f);
+    if (pa->size > 0) fwrite(pa->items, sizeof(Product), pa->size, f);
+    if (sa->size > 0) fwrite(sa->items, sizeof(Supplier), sa->size, f);
+    fclose(f); return 0;
+}
+
+int ucitaj_sve(const char* fn, ProductArray* pa, SupplierArray* sa) {
+    if (!fn || !pa || !sa) return -1;
+    FILE* f = fopen(fn, "rb"); if (!f) return -1;
+    size_t p_sz = 0, s_sz = 0;
+    if (fread(&p_sz, sizeof(size_t), 1, f) != 1 || fread(&s_sz, sizeof(size_t), 1, f) != 1) { fclose(f); return -1; }
+    p_init(pa); s_init(sa);
+    if (p_sz > 0) {
+        pa->items = (Product*)malloc(p_sz * sizeof(Product));
+        if (pa->items) { fread(pa->items, sizeof(Product), p_sz, f); pa->size = pa->capacity = p_sz; }
+    }
+    if (s_sz > 0) {
+        sa->items = (Supplier*)malloc(s_sz * sizeof(Supplier));
+        if (sa->items) { fread(sa->items, sizeof(Supplier), s_sz, f); sa->size = sa->capacity = s_sz; }
+    }
+    if (ferror(f)) { perror("Greska citanja"); } fclose(f); return 0;
+}
+
+int kopiraj_datoteku(const char* src, const char* dst) {
+    if (!src || !dst) return -1;
+    FILE* s = fopen(src, "rb"); FILE* d = fopen(dst, "wb");
+    if (!s || !d) { if(s) fclose(s); if(d) fclose(d); return -1; }
+    char meduspremnik[512]; size_t n;
+    while ((n = fread(meduspremnik, 1, sizeof(meduspremnik), s)) > 0) fwrite(meduspremnik, 1, n, d);
+    fclose(s); fclose(d); return 0;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#ifndef HEADER_H
+#define HEADER_H
+
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+
+// Enumi i konfiguracija (Tocke 4, 11)
+typedef enum { CAT_STAPOVI = 0, CAT_ROLE, CAT_NAJLON, CAT_COUNT } ProductCategory;
+typedef enum { OPT_IZLAZ = 0, OPT_DODAJ_P, OPT_ISPISI_P, OPT_AZURIRAJ_P, OPT_OBRISI_P, OPT_DODAJ_D, OPT_TRAZI_P, OPT_SORT_P, OPT_BACKUP } MenuOption;
+
+// Slozeni tipovi (Tocka 3)
+typedef struct { int id; char ime[50]; int kategorijaId; double cijena; int kolicina; int dobavljacId; } Product;
+typedef struct { int id; char ime[50]; char kontakt[50]; } Supplier;
+
+typedef struct { Product* items; size_t size; size_t capacity; } ProductArray;
+typedef struct { Supplier* items; size_t size; size_t capacity; } SupplierArray;
+
+typedef struct { int verbose; } Config;
+
+// Globalna varijabla i makro (Tocke 8, 9)
+extern Config globalnaKonfiguracija;
+#define JE_VALJANA_KAT(id) ((id) >= 0 && (id) < CAT_COUNT)
+
+// Prototipi funkcija
+void p_init(ProductArray* a); void p_free(ProductArray* a); int p_add(ProductArray* a, const Product* p);
+void s_init(SupplierArray* a); void s_free(SupplierArray* a); int s_add(SupplierArray* a, const Supplier* s);
+int spasi_sve(const char* fn, const ProductArray* pa, const SupplierArray* sa);
+int ucitaj_sve(const char* fn, ProductArray* pa, SupplierArray* sa);
+int kopiraj_datoteku(const char* src, const char* dst);
+int p_search_rekurzivni(const Product* artikli, int niski, int visoki, int trazeniId);
+int usporedi_proizvode(const void* a, const void* b);
+int datoteka_postoji(const char* fn); long dohvati_velicinu_datoteke(const char* fn);
+
+#endif
