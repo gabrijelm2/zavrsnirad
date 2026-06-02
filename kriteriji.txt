@@ -1,0 +1,358 @@
+OBAVEZNI KONCEPTI - PRIMJERI IZ KODA
+=====================================
+
+1. CRUID (Create, Read, Update, Insert, Delete)
+
+   Create:
+   p_add(&pNiz, &p)
+
+   Read:
+   for (size_t i = 0; i < pNiz.size; i++)
+       printf("ID:%d | %s | ...\n", pNiz.items[i].id, pNiz.items[i].ime, ...);
+
+   Update:
+   unesi_double("Nova cijena: ", &pNiz.items[idx].cijena);
+   unesi_int("Nova kolicina: ", &pNiz.items[idx].kolicina);
+   obnovi_datoteku_na_disku(BAZA, &pNiz, &sNiz);
+
+   Insert:
+   s_add(&sNiz, &s)
+
+   Delete:
+   for (size_t i = idx; i < pNiz.size - 1; i++)
+       pNiz.items[i] = pNiz.items[i + 1];
+   pNiz.size--;
+   obnovi_datoteku_na_disku(BAZA, &pNiz, &sNiz);
+
+
+2. Odabir konkretnih primitivnih tipova podataka
+
+   int id;
+   double cijena;
+   size_t size;
+   long sz;
+   char ime[50];
+
+
+3. Odabir konkretnih slozenih tipova podataka
+
+   typedef struct {
+       int id;
+       char ime[50];
+       int kategorijaId;
+       double cijena;
+       int kolicina;
+       int dobavljacId;
+   } Product;
+
+   typedef struct {
+       Product* items;
+       size_t size;
+       size_t capacity;
+   } ProductArray;
+
+   typedef struct {
+       int verbose;
+   } Config;
+
+
+4. Primjena typedef sa strukturama i enum tipovima
+
+   typedef enum {
+       CAT_STAPOVI = 0,
+       CAT_ROLE,
+       CAT_NAJLON,
+       CAT_COUNT
+   } ProductCategory;
+
+   typedef enum {
+       SORT_PO_ID = 1,
+       SORT_PO_CIJENI,
+       SORT_PO_IMENU
+   } SortOption;
+
+   typedef struct {
+       int id;
+       char ime[50];
+       char kontakt[50];
+   } Supplier;
+
+
+5. Imenovanje identifikatora - camelCase, PascalCase, snake_case
+
+   PascalCase (tipovi):
+   ProductArray, SupplierArray, MenuOption, SortOption
+
+   camelCase (varijable):
+   int trazeniId
+   ProductArray pNiz
+   char unosBuffer[64]
+   int kategorijaId
+
+   snake_case (funkcije):
+   p_add(), s_init(), p_free(), ucitaj_sve(), spasi_sve()
+
+
+6. Primjena kljucne rijeci static
+
+   static int prosiri_p(ProductArray* a) { ... }
+   static int prosiri_s(SupplierArray* a) { ... }
+   static void ispisi_izbornik(void) { ... }
+   static int unesi_int(const char* prompt, int* out) { ... }
+   static void sortiraj_proizvode(ProductArray* pa) { ... }
+
+
+7. Organizacija izvornog koda
+
+   header.h    - tipovi, extern, makro, deklaracije funkcija
+   skladiste.c - implementacija logike i datotecnih operacija
+   main.c      - UI, izbornik, unos, main()
+
+
+8. Primjena kljucne rijeci extern
+
+   header.h (deklaracija):
+   extern Config globalnaKonfiguracija;
+
+   skladiste.c (definicija):
+   Config globalnaKonfiguracija = { .verbose = 1 };
+
+   main.c (koristenje):
+   if (globalnaKonfiguracija.verbose)
+       printf("Velicina ucitane baze: %ld bajtova.\n", vel);
+
+
+9. Makro funkcije
+
+   #define JE_VALJANA_KAT(id) ((id) >= 0 && (id) < CAT_COUNT)
+
+   Koristenje u p_add():
+   if (!a || !p || !JE_VALJANA_KAT(p->kategorijaId)) return -1;
+
+   Koristenje u main.c:
+   if (!JE_VALJANA_KAT(kat)) { printf("Neispravna kategorija.\n"); continue; }
+
+
+10. Izbornik i podizbornici
+
+    Glavni izbornik:
+    static void ispisi_izbornik(void) {
+        printf("1. Dodaj Proizvod\n");
+        printf("2. Ispisi Proizvode\n");
+        ...
+    }
+
+    Podizbornik za sortiranje:
+    static void ispisi_podizbornik_sort(void) {
+        printf("--- Sortiranje ---\n");
+        printf("%d. Po ID-u\n",   SORT_PO_ID);
+        printf("%d. Po cijeni\n", SORT_PO_CIJENI);
+        printf("%d. Po imenu\n",  SORT_PO_IMENU);
+    }
+
+
+11. Enum tipovi ili makro simboli u izborniku
+
+    if (odabir == OPT_DODAJ_P) { ... }
+    if (odabir == OPT_ISPISI_P) { ... }
+    if (odabir == OPT_SORT_P) { sortiraj_proizvode(&pNiz); }
+    if (odabir == OPT_BACKUP) { ... }
+    if (odabir != OPT_IZLAZ) { ... }
+
+    switch ((SortOption)odabir) {
+        case SORT_PO_ID:     qsort(..., usporedi_proizvode_id);     break;
+        case SORT_PO_CIJENI: qsort(..., usporedi_proizvode_cijena); break;
+        case SORT_PO_IMENU:  qsort(..., usporedi_proizvode_ime);    break;
+    }
+
+
+12. Generalno upotreba pokazivaca
+
+    FILE* f = fopen(fn, "rb");
+
+    Product* tmp = realloc(a->items, nc * sizeof(Product));
+
+    static int unesi_int(const char* prompt, int* out) { *out = (int)val; }
+
+    typedef struct { Product* items; size_t size; size_t capacity; } ProductArray;
+
+
+13. Generalno upotreba struktura i funkcija
+
+    int p_add(ProductArray* a, const Product* p) { ... }
+    int s_add(SupplierArray* a, const Supplier* s) { ... }
+    int ucitaj_sve(const char* fn, ProductArray* pa, SupplierArray* sa) { ... }
+    void p_free(ProductArray* a) { ... }
+
+
+14. Zastita parametara kod svih funkcija
+
+    int p_add(ProductArray* a, const Product* p) {
+        if (!a || !p || !JE_VALJANA_KAT(p->kategorijaId)) return -1;
+
+    int ucitaj_sve(const char* fn, ProductArray* pa, SupplierArray* sa) {
+        if (!fn || !pa || !sa) return -1;
+
+    static int unesi_tekst(const char* prompt, char* buf, size_t velicina) {
+        if (!prompt || !buf || velicina == 0) return 0;
+
+
+15. Staticka polja, bez VLA
+
+    char buf[64];
+    char buf[512];
+    char unosBuffer[64];
+    char ime[50];
+    char kontakt[50];
+
+    (Nigdje u kodu nije koristen VLA oblika: int arr[n];)
+
+
+16. Dinamicko zauzimanje memorije
+
+    Product* tmp = realloc(a->items, nc * sizeof(Product));
+
+    pa->items = calloc(p_sz, sizeof(Product));
+
+    sa->items = calloc(s_sz, sizeof(Supplier));
+
+
+17. Koristiti malloc(), calloc(), realloc(), free()
+
+    realloc:
+    Product* tmp = realloc(a->items, nc * sizeof(Product));
+
+    calloc:
+    pa->items = calloc(p_sz, sizeof(Product));
+    sa->items = calloc(s_sz, sizeof(Supplier));
+
+    free:
+    void p_free(ProductArray* a) {
+        free(a->items);
+        a->items = NULL;
+    }
+
+
+18. Sigurno brisanje dinamicki zauzete memorije
+
+    void p_free(ProductArray* a) {
+        free(a->items);
+        a->items = NULL;
+        a->size = a->capacity = 0;
+    }
+
+    Error cleanup u ucitaj_sve():
+    free(pa->items);
+    pa->items = NULL;
+    fclose(f);
+    return -1;
+
+
+19. Datoteke - provjera pokazivaca i zatvaranje
+
+    FILE* f = fopen(fn, "rb");
+    if (!f) { perror("fopen (ucitaj)"); return -1; }
+    ...
+    fclose(f);
+
+    FILE* d = fopen(dst, "wb");
+    if (!d) {
+        perror("fopen (kopiranje - odrediste)");
+        fclose(s);
+        return -1;
+    }
+
+
+20. Koristiti fseek(), ftell(), rewind()
+
+    fseek:
+    fseek(f, 0, SEEK_END);
+
+    ftell:
+    long sz = ftell(f);
+
+    rewind:
+    rewind(f);
+
+
+21. Koristiti remove(), rename(), kopiranje datoteka
+
+    remove:
+    remove(fn);
+
+    rename:
+    if (rename(temp, fn) != 0) { perror("rename"); return -1; }
+
+    kopiranje (vlastita implementacija):
+    while ((n = fread(buf, 1, sizeof(buf), s)) > 0)
+        fwrite(buf, 1, n, d);
+
+
+22. Upravljanje pogresekama - errno, perror(), strerror(), feof(), ferror()
+
+    perror:
+    perror("fopen (ucitaj)");
+    perror("fwrite (zaglavlje)");
+    perror("calloc (proizvodi)");
+
+    strerror:
+    printf("Greska pri ucitavanju baze: %s\n", strerror(errno));
+    printf("Greska pri spremanju: %s\n", strerror(errno));
+
+    errno:
+    errno = 0;
+    val = strtol(buf, &end, 10);
+    if (errno != 0) { printf("Neispravan unos...\n"); }
+
+    ferror:
+    if (ferror(f)) perror("fread (zaglavlje)");
+    if (ferror(s)) { perror("fread (kopiranje)"); ok = 0; }
+
+    feof:
+    if (feof(f)) { /* ocekivano */ }
+
+
+23. Sortiranje - qsort()
+
+    qsort(pa->items, pa->size, sizeof(Product), usporedi_proizvode_id);
+    qsort(pa->items, pa->size, sizeof(Product), usporedi_proizvode_cijena);
+    qsort(pa->items, pa->size, sizeof(Product), usporedi_proizvode_ime);
+
+    Komparator:
+    int usporedi_proizvode_cijena(const void* a, const void* b) {
+        double razlika = ((const Product*)a)->cijena - ((const Product*)b)->cijena;
+        if (razlika < 0.0) return -1;
+        if (razlika > 0.0) return  1;
+        return 0;
+    }
+
+
+24. Pretrazivanje
+
+    int idx = p_search_rekurzivni(pNiz.items, 0, (int)pNiz.size - 1, id);
+
+    (Vlastiti rekurzivni binary search, poziva se uvijek nakon qsort-a)
+
+
+25. Rekurzija
+
+    int p_search_rekurzivni(const Product* artikli, int niski, int visoki, int trazeniId) {
+        if (niski > visoki) return -1;
+        int sredina = niski + (visoki - niski) / 2;
+        if (artikli[sredina].id == trazeniId) return sredina;
+        if (artikli[sredina].id > trazeniId)
+            return p_search_rekurzivni(artikli, niski, sredina - 1, trazeniId);
+        return p_search_rekurzivni(artikli, sredina + 1, visoki, trazeniId);
+    }
+
+
+26. Pokazivaci na funkcije
+
+    qsort(pa->items, pa->size, sizeof(Product), usporedi_proizvode_id);
+    qsort(pa->items, pa->size, sizeof(Product), usporedi_proizvode_cijena);
+    qsort(pa->items, pa->size, sizeof(Product), usporedi_proizvode_ime);
+
+    Potpis koji odgovara tipu int (*)(const void*, const void*):
+    int usporedi_proizvode_id(const void* a, const void* b) {
+        return ((const Product*)a)->id - ((const Product*)b)->id;
+    }
