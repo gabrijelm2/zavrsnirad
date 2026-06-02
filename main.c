@@ -1,6 +1,6 @@
 #include "header.h"
 
-/* Pomocne funkcije za unos */
+
 static int unesi_tekst(const char* prompt, char* buf, size_t velicina) {
     if (!prompt || !buf || velicina == 0) return 0;
     printf("%s", prompt);
@@ -72,12 +72,12 @@ static void ispisi_izbornik(void) {
     printf("==========\nOdabir: ");
 }
 
-/* Podizbornik za sortiranje */
+
 static void ispisi_podizbornik_sort(void) {
     printf("\n--- Sortiranje ---\n");
-    printf("%d. Po ID-u\n",     SORT_PO_ID);
-    printf("%d. Po cijeni\n",   SORT_PO_CIJENI);
-    printf("%d. Po imenu\n",    SORT_PO_IMENU);
+    printf("%d. Po ID-u\n", SORT_PO_ID);
+    printf("%d. Po cijeni\n", SORT_PO_CIJENI);
+    printf("%d. Po imenu\n", SORT_PO_IMENU);
     printf("Odabir: ");
 }
 
@@ -90,21 +90,21 @@ static void sortiraj_proizvode(ProductArray* pa) {
     if (!unesi_int("", &odabir)) return;
 
     switch ((SortOption)odabir) {
-        case SORT_PO_ID:
-            qsort(pa->items, pa->size, sizeof(Product), usporedi_proizvode_id);
-            printf("Sortirano po ID-u!\n");
-            break;
-        case SORT_PO_CIJENI:
-            qsort(pa->items, pa->size, sizeof(Product), usporedi_proizvode_cijena);
-            printf("Sortirano po cijeni!\n");
-            break;
-        case SORT_PO_IMENU:
-            qsort(pa->items, pa->size, sizeof(Product), usporedi_proizvode_ime);
-            printf("Sortirano po imenu!\n");
-            break;
-        default:
-            printf("Nepoznat odabir sortiranja.\n");
-            break;
+    case SORT_PO_ID:
+        qsort(pa->items, pa->size, sizeof(Product), usporedi_proizvode_id);
+        printf("Sortirano po ID-u!\n");
+        break;
+    case SORT_PO_CIJENI:
+        qsort(pa->items, pa->size, sizeof(Product), usporedi_proizvode_cijena);
+        printf("Sortirano po cijeni!\n");
+        break;
+    case SORT_PO_IMENU:
+        qsort(pa->items, pa->size, sizeof(Product), usporedi_proizvode_ime);
+        printf("Sortirano po imenu!\n");
+        break;
+    default:
+        printf("Nepoznat odabir sortiranja.\n");
+        break;
     }
 }
 
