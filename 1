@@ -1,0 +1,32 @@
+int ucitaj_sve(const char* fn, ProductArray* pa, SupplierArray* sa)
+{
+    (void)sa;
+
+    if (!fn || !pa)
+        return -1;
+
+    FILE* f = fopen(fn, "r");
+
+    if (!f)
+        return -1;
+
+    p_init(pa);
+
+    Product p;
+
+    while (fscanf(
+        f,
+        "%d|%49[^|]|%d|%lf|%d|%d\n",
+        &p.id,
+        p.ime,
+        &p.kategorijaId,
+        &p.cijena,
+        &p.kolicina,
+        &p.dobavljacId) == 6)
+    {
+        p_add(pa, &p);
+    }
+
+    fclose(f);
+    return 0;
+}
