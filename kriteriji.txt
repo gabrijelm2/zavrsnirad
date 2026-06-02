@@ -1,6 +1,3 @@
-OBAVEZNI KONCEPTI - PRIMJERI IZ KODA
-=====================================
-
 1. CRUID (Create, Read, Update, Insert, Delete)
 
    Create:
@@ -95,18 +92,18 @@ OBAVEZNI KONCEPTI - PRIMJERI IZ KODA
 
 6. Primjena kljucne rijeci static
 
-   static int prosiri_p(ProductArray* a) { ... }
-   static int prosiri_s(SupplierArray* a) { ... }
-   static void ispisi_izbornik(void) { ... }
-   static int unesi_int(const char* prompt, int* out) { ... }
-   static void sortiraj_proizvode(ProductArray* pa) { ... }
+   static int prosiri_p(ProductArray* a) 
+   static int prosiri_s(SupplierArray* a) 
+   static void ispisi_izbornik(void) 
+   static int unesi_int(const char* prompt, int* out) 
+   static void sortiraj_proizvode(ProductArray* pa) 
 
 
 7. Organizacija izvornog koda
 
-   header.h    - tipovi, extern, makro, deklaracije funkcija
-   skladiste.c - implementacija logike i datotecnih operacija
-   main.c      - UI, izbornik, unos, main()
+   header.h 
+   skladiste.c 
+   main.c 
 
 
 8. Primjena kljucne rijeci extern
@@ -139,7 +136,6 @@ OBAVEZNI KONCEPTI - PRIMJERI IZ KODA
     static void ispisi_izbornik(void) {
         printf("1. Dodaj Proizvod\n");
         printf("2. Ispisi Proizvode\n");
-        ...
     }
 
     Podizbornik za sortiranje:
@@ -153,11 +149,11 @@ OBAVEZNI KONCEPTI - PRIMJERI IZ KODA
 
 11. Enum tipovi ili makro simboli u izborniku
 
-    if (odabir == OPT_DODAJ_P) { ... }
-    if (odabir == OPT_ISPISI_P) { ... }
+    if (odabir == OPT_DODAJ_P)
+    if (odabir == OPT_ISPISI_P)
     if (odabir == OPT_SORT_P) { sortiraj_proizvode(&pNiz); }
-    if (odabir == OPT_BACKUP) { ... }
-    if (odabir != OPT_IZLAZ) { ... }
+    if (odabir == OPT_BACKUP)
+    if (odabir != OPT_IZLAZ)
 
     switch ((SortOption)odabir) {
         case SORT_PO_ID:     qsort(..., usporedi_proizvode_id);     break;
@@ -179,11 +175,10 @@ OBAVEZNI KONCEPTI - PRIMJERI IZ KODA
 
 13. Generalno upotreba struktura i funkcija
 
-    int p_add(ProductArray* a, const Product* p) { ... }
-    int s_add(SupplierArray* a, const Supplier* s) { ... }
-    int ucitaj_sve(const char* fn, ProductArray* pa, SupplierArray* sa) { ... }
-    void p_free(ProductArray* a) { ... }
-
+    int p_add(ProductArray* a, const Product* p) 
+    int s_add(SupplierArray* a, const Supplier* s)
+    int ucitaj_sve(const char* fn, ProductArray* pa, SupplierArray* sa)
+    void p_free(ProductArray* a)
 
 14. Zastita parametara kod svih funkcija
 
