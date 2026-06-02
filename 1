@@ -30,3 +30,42 @@ int ucitaj_sve(const char* fn, ProductArray* pa, SupplierArray* sa)
     fclose(f);
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
+
+int spasi_sve(const char* fn, const ProductArray* pa, const SupplierArray* sa)
+{
+    (void)sa;
+
+    if (!fn || !pa)
+        return -1;
+
+    FILE* f = fopen(fn, "w");
+
+    if (!f) {
+        perror("fopen");
+        return -1;
+    }
+
+    for (size_t i = 0; i < pa->size; i++) {
+        fprintf(f,
+            "%d|%s|%d|%.2f|%d|%d\n",
+            pa->items[i].id,
+            pa->items[i].ime,
+            pa->items[i].kategorijaId,
+            pa->items[i].cijena,
+            pa->items[i].kolicina,
+            pa->items[i].dobavljacId);
+    }
+
+    fclose(f);
+    return 0;
+}
