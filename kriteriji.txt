@@ -200,7 +200,7 @@
     char ime[50];
     char kontakt[50];
 
-    (Nigdje u kodu nije koristen VLA oblika: int arr[n];)
+
 
 
 16. Dinamicko zauzimanje memorije
