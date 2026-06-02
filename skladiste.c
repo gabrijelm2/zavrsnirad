@@ -165,7 +165,7 @@ int ucitaj_sve(const char* fn, ProductArray* pa, SupplierArray* sa) {
 
     size_t p_sz = 0, s_sz = 0;
 
-    /* rewind() za siguran pocetni polozaj pokazivaca */
+   
     rewind(f);
 
     if (fread(&p_sz, sizeof(size_t), 1, f) != 1 ||
@@ -179,7 +179,7 @@ int ucitaj_sve(const char* fn, ProductArray* pa, SupplierArray* sa) {
     s_init(sa);
 
     if (p_sz) {
-        /* calloc umjesto malloc — nulira memoriju i provjerava alokaciju */
+        
         pa->items = calloc(p_sz, sizeof(Product));
         if (!pa->items) {
             perror("calloc (proizvodi)");
@@ -215,8 +215,8 @@ int ucitaj_sve(const char* fn, ProductArray* pa, SupplierArray* sa) {
         sa->size = sa->capacity = s_sz;
     }
 
-    /* feof() — normalan kraj datoteke, nije greska */
-    if (feof(f)) { /* ocekivano */ }
+    
+    if (feof(f)) {}
 
     fclose(f);
     return 0;
@@ -230,7 +230,7 @@ int kopiraj_datoteku(const char* src, const char* dst) {
     FILE* d = fopen(dst, "wb");
     if (!d) {
         perror("fopen (kopiranje - odrediste)");
-        fclose(s);   /* FIX: zatvaramo izvor ako odrediste ne uspije */
+        fclose(s);   
         return -1;
     }
 
